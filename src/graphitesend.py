@@ -73,7 +73,7 @@ class GraphiteClient(object):
     def _send(self, message):
         """ Given a message send it to the graphite server. """
         self.socket.sendall(message)
-        print "sent %d long message" % len(message)
+        return "sent %d long message" % len(message)
 
     def send(self, metric, value, timestamp=None):
         """ Format a single metric/value pair, and send it to the graphite server.
@@ -85,7 +85,7 @@ class GraphiteClient(object):
 
         message = "%s%s %f %d\n" % (self.prefix, metric, value, timestamp)
 
-        self._send(message)
+        return self._send(message)
 
     def send_dict(self, data, timestamp=None):
         """ Format a dict of metric/values pairs, and send them all to the graphite
@@ -103,7 +103,7 @@ class GraphiteClient(object):
             metric_list.append(tmp_message)
 
         message = "".join(metric_list)
-        self._send(message)
+        return self._send(message)
 
 
 def init(*args, **kwargs):
