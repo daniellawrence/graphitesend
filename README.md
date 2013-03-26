@@ -61,6 +61,26 @@ Sending a dict()
     >>> g.send_dict({'metric': 45, 'metric2': 55)
 ````
 
+installing
+----------
+
+*pip*
+
+````sh
+$ pip install graphitesend
+````
+
+or
+
+*source*
+
+````sh
+$ git clone git://github.com/daniellawrence/graphitesend.git
+$ cd graphitesend
+$ python ./setup.py install
+````
+
+
 
 Porcelain Overview
 ==================
@@ -82,3 +102,5 @@ Then send the metrics to the graphite server.
 reset
 -----
 Disconnect from the graphite server and destroy the module instance.
+
+
