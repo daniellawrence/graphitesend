@@ -58,7 +58,7 @@ Sending a dict()
 ````python
     >>> import graphitesend
     >>> g = graphitesend.init()
-    >>> g.send_dict({'metric': 45, 'metric2': 55)
+    >>> g.send_dict({'metric': 45, 'metric2': 55})
 ````
 
 installing
