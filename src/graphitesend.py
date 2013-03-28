@@ -27,7 +27,7 @@ class GraphiteClient(object):
 
     """
     def __init__(self, host="graphite", port=2003, prefix=None,
-                 debug=False, group=None, system_name=None):
+                 debug=False, group=None, system_name=None, suffix=None):
         """ setup the connection to the graphite server and work out the
         prefix.
         This allows for very simple syntax when sending messages to the
@@ -47,6 +47,11 @@ class GraphiteClient(object):
 
         if prefix:
             prefix = prefix + "."
+       
+        if suffix:
+            self.suffix = suffix
+        else:
+            self.suffix = ""
 
         self.prefix = prefix
 
@@ -83,7 +88,7 @@ class GraphiteClient(object):
         else:
             timestamp = int(timestamp)
 
-        message = "%s%s %f %d\n" % (self.prefix, metric, value, timestamp)
+        message = "%s%s%s %f %d\n" % (self.prefix, metric, self.suffix, value, timestamp)
 
         return self._send(message)
 
@@ -99,7 +104,7 @@ class GraphiteClient(object):
         metric_list = []
 
         for metric, value in data.items():
-            tmp_message = "%s%s %f %d\n" % (self.prefix, metric, value, timestamp)
+            tmp_message = "%s%s%s %f %d\n" % (self.prefix,  metric, self.suffix, value, timestamp)
             metric_list.append(tmp_message)
 
         message = "".join(metric_list)
