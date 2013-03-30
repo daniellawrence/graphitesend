@@ -82,7 +82,7 @@ class GraphiteClient(object):
                             (timeout_in_seconds, self.addr))
         return local_socket
 
-    def clean_metric_name(metric_name):
+    def clean_metric_name(self, metric_name):
         """ Make sure the metric is free of control chars, spaces, tabs, etc.
         TODO: Need to work out the best way to do the following:
         """
