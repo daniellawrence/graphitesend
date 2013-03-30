@@ -6,6 +6,8 @@ import os
 _module_instance = None
 __version__ = "0.0.1"
 
+graphite_server = 'graphite'
+
 
 class GraphiteClient(object):
     """ Graphite Client that will setup a TCP connection to your graphite
@@ -26,12 +28,17 @@ class GraphiteClient(object):
     apache.
 
     """
-    def __init__(self, host="graphite", port=2003, prefix=None,
+    def __init__(self, host=None, port=2003, prefix=None,
                  debug=False, group=None, system_name=None, suffix=None):
         """ setup the connection to the graphite server and work out the
         prefix.
         This allows for very simple syntax when sending messages to the
         graphite server. """
+
+        # If we are not passed a host, then use the graphite server defined
+        # in the module.
+        if not host:
+            host = graphite_server
         self.addr = (host, port)
         self.socket = self.connect()
         self.debug = debug
