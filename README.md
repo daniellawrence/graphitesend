@@ -3,6 +3,10 @@ graphitesend
 
 Easy python bindings to write to Carbon ( Re-write of carbonclient)
 
+Build status
+-------------
+[![Build Status](https://travis-ci.org/daniellawrence/graphitesend.png)](https://travis-ci.org/daniellawrence/graphitesend)
+
 
 
 Example
