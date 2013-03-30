@@ -81,6 +81,27 @@ $ python ./setup.py install
 ````
 
 
+cli
+------------
+
+Just added -- A cli script that allows for anything to send metrics over to 
+graphite (not just python).
+
+The usage is very simple you need to give the command a metric and a value.
+
+````sh
+	$ graphitesend name.of.the.metric 666
+````
+
+Send more\* then 1 metric and value
+
+````sh
+	$ graphitesend name.of.the.metric 666
+	$ graphitesend name.of.the.other_metric 2
+````
+
+\* Call it 2 times ;)
+
 
 Porcelain Overview
 ==================
