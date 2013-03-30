@@ -47,7 +47,7 @@ class GraphiteClient(object):
 
         if prefix:
             prefix = prefix + "."
-       
+
         if suffix:
             self.suffix = suffix
         else:
@@ -57,19 +57,23 @@ class GraphiteClient(object):
 
     def connect(self):
         """ Make a TCP connection to the graphite server on port self.port """
+        timeout_in_seconds = 2
         local_socket = socket.socket()
-        local_socket.settimeout(1)
-        local_socket.connect(self.addr)
+        local_socket.settimeout(timeout_in_seconds)
+        try:
+            local_socket.connect(self.addr)
+        except socket.timeout:
+            raise Exception("Took over %d seconds to connect to %s" %
+                            (timeout_in_seconds, self.addr))
         return local_socket
 
     def clean_metric_name(metric_name):
         """ Make sure the metric is free of control chars, spaces, tabs, etc.
         TODO: Need to work out the best way to do the following:
         """
-        metric_name = metric_name.replace('(','_').replace(')','')
-        metric_name = metric_name.replace(' ','_').replace('-','_')
+        metric_name = metric_name.replace('(', '_').replace(')', '')
+        metric_name = metric_name.replace(' ', '_').replace('-', '_')
         return metric_name
-
 
     def disconnect(self):
         """ close the TCP connection. """
@@ -81,20 +85,22 @@ class GraphiteClient(object):
         return "sent %d long message" % len(message)
 
     def send(self, metric, value, timestamp=None):
-        """ Format a single metric/value pair, and send it to the graphite server.
+        """ Format a single metric/value pair, and send it to the graphite
+        server.
         """
         if timestamp is None:
             timestamp = int(time.time())
         else:
             timestamp = int(timestamp)
 
-        message = "%s%s%s %f %d\n" % (self.prefix, metric, self.suffix, value, timestamp)
+        message = "%s%s%s %f %d\n" % (self.prefix, metric, self.suffix,
+                                      value, timestamp)
 
         return self._send(message)
 
     def send_dict(self, data, timestamp=None):
-        """ Format a dict of metric/values pairs, and send them all to the graphite
-        server.
+        """ Format a dict of metric/values pairs, and send them all to the
+        graphite server.
         """
         if timestamp is None:
             timestamp = int(time.time())
@@ -104,7 +110,8 @@ class GraphiteClient(object):
         metric_list = []
 
         for metric, value in data.items():
-            tmp_message = "%s%s%s %f %d\n" % (self.prefix,  metric, self.suffix, value, timestamp)
+            tmp_message = "%s%s%s %f %d\n" % (self.prefix, metric,
+                                              self.suffix, value, timestamp)
             metric_list.append(tmp_message)
 
         message = "".join(metric_list)
@@ -152,3 +159,28 @@ def reset():
         return False
     _module_instance.disconnect()
     _module_instance = None
+
+
+def cli():
+    """ Allow the module to be called from the cli. """
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Send data to graphite')
+
+    # Core of the application is to accept a metric and a value.
+    parser.add_argument('metric', metavar='metric', type=str,
+                        help='name.of.metric')
+    parser.add_argument('value', metavar='value', type=int,
+                        help='value of metric as int')
+
+    args = parser.parse_args()
+    metric = args.metric
+    value = args.value
+
+    g = init()
+    g.send(metric, value)
+
+if __name__ == '__main__':
+    print "Sending test metric 'graphitesend_test'"
+    g = init()
+    g.send('graphitesend_test', 54)
