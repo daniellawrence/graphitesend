@@ -10,7 +10,11 @@ class TestAll(unittest.TestCase):
 
     def setUp(self):
         """ reset graphitesend """
+        # Drop any connections or modules that have been setup from other tests
         graphitesend.reset()
+        # Monkeypatch the graphitesend so that it points at a graphite service
+        # running on one of my (dannyla@linux.com) systems.
+        graphitesend.graphite_server = 'graphite.dansysadm.com'
 
     def test_create_graphitesend_instance(self):
         g = graphitesend.init()
