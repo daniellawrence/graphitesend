@@ -47,7 +47,7 @@ class GraphiteClient(object):
 
         if prefix:
             prefix = prefix + "."
-      
+
         if suffix:
             self.suffix = suffix
         else:
@@ -85,7 +85,8 @@ class GraphiteClient(object):
         return "sent %d long message" % len(message)
 
     def send(self, metric, value, timestamp=None):
-        """ Format a single metric/value pair, and send it to the graphite server.
+        """ Format a single metric/value pair, and send it to the graphite
+        server.
         """
         if timestamp is None:
             timestamp = int(time.time())
@@ -98,8 +99,8 @@ class GraphiteClient(object):
         return self._send(message)
 
     def send_dict(self, data, timestamp=None):
-        """ Format a dict of metric/values pairs, and send them all to the graphite
-        server.
+        """ Format a dict of metric/values pairs, and send them all to the
+        graphite server.
         """
         if timestamp is None:
             timestamp = int(time.time())
@@ -180,5 +181,6 @@ def cli():
     g.send(metric, value)
 
 if __name__ == '__main__':
-    cli()
-
+    print "Sending test metric 'graphitesend_test'"
+    g = init()
+    g.send('graphitesend_test', 54)
