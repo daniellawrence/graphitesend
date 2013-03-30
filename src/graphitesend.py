@@ -48,6 +48,14 @@ class GraphiteClient(object):
         if prefix:
             prefix = prefix + "."
 
+        # remove double dots
+        if '..' in prefix:
+            prefix = prefix.replace('..','.')
+
+        # Replace ' 'spaces with _
+        if ' ' in prefix:
+            prefix = prefix.replace(' ','_')
+
         if suffix:
             self.suffix = suffix
         else:
