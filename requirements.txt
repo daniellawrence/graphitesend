@@ -1,0 +1,6 @@
+argparse==1.2.1
+coverage==3.6
+distribute==0.6.24
+graphitesend==0.0.1
+nose==1.2.1
+wsgiref==0.1.2
