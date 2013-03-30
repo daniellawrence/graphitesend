@@ -61,27 +61,8 @@ Sending a dict()
     >>> g.send_dict({'metric': 45, 'metric2': 55})
 ````
 
-installing
-----------
 
-*pip*
-
-````sh
-$ pip install graphitesend
-````
-
-or
-
-*source*
-
-````sh
-$ git clone git://github.com/daniellawrence/graphitesend.git
-$ cd graphitesend
-$ python ./setup.py install
-````
-
-
-cli
+CLI
 ------------
 
 Just added -- A cli script that allows for anything to send metrics over to 
@@ -101,6 +82,25 @@ Send more\* then 1 metric and value
 ````
 
 \* Call it 2 times ;)
+
+Installing
+----------
+
+*pip*
+
+````sh
+$ pip install graphitesend
+````
+
+or
+
+*source*
+
+````sh
+$ git clone git://github.com/daniellawrence/graphitesend.git
+$ cd graphitesend
+$ python ./setup.py install
+````
 
 
 Porcelain Overview
