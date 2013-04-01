@@ -8,7 +8,6 @@ __version__ = "0.0.1"
 
 graphite_server = 'graphite'
 
-
 class GraphiteClient(object):
     """ Graphite Client that will setup a TCP connection to your graphite
     instance on port 2003. It will then send any metrics that you give it via
@@ -192,10 +191,14 @@ def cli():
     metric = args.metric
     value = args.value
 
-    g = init()
-    g.send(metric, value)
+    graphitesend_instance = init()
+    graphitesend_instance.send(metric, value)
+
+def main():
+    """ Basic testing. """
+    print "Sending test metric 'graphitesend_test'"
+    graphitesend_instance = init()
+    graphitesend_instance.send('graphitesend_test', 54)
 
 if __name__ == '__main__':
-    print "Sending test metric 'graphitesend_test'"
-    g = init()
-    g.send('graphitesend_test', 54)
+    main()
