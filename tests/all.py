@@ -14,7 +14,7 @@ class TestAll(unittest.TestCase):
         graphitesend.reset()
         # Monkeypatch the graphitesend so that it points at a graphite service
         # running on one of my (dannyla@linux.com) systems.
-        graphitesend.graphite_server = 'graphite.dansysadm.com'
+        graphitesend.default_graphite_server = 'graphite.dansysadm.com'
 
     def tearDown(self):
         """ reset graphitesend """
@@ -22,7 +22,7 @@ class TestAll(unittest.TestCase):
         graphitesend.reset()
 
     def test_connect_exception_on_badhost(self):
-        graphitesend.graphite_server = 'missinggraphiteserver.example.com'
+        graphitesend.default_graphite_server = 'missinggraphiteserver.example.com'
         with self.assertRaises(graphitesend.GraphiteSendException):
             graphite_instance = graphitesend.init()
 
