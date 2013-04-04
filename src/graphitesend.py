@@ -165,12 +165,29 @@ class GraphiteClient(object):
         message = "".join(metric_list)
         return self._send(message)
 
+class GraphiteSendUDP(GraphiteClient):
+
+    def _send(self, message):
+        """ Give a message, send it to the graphite server over a UDP socket. """
+        self.connect()
+        self.socket.sendto( message, self.addr )
+
+    def disconnect(self):
+        """ Remove the socket. """
+        self.socket = None
+
+    def connect(self):
+        """ Make a TCP connection to the graphite server on port self.port """
+        local_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socket = local_socket
+
+
 
 def init(*args, **kwargs):
     """ Create the module instance of the GraphiteClient. """
     global _module_instance
     reset()
-    _module_instance = GraphiteClient(*args, **kwargs)
+    _module_instance = GraphiteSendUDP(*args, **kwargs)
     return _module_instance
 
 
