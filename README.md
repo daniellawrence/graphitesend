@@ -129,3 +129,8 @@ reset
 Disconnect from the graphite server and destroy the module instance.
 
 
+TCP vs UDP
+==========
+
+There is a work in progress branch for UDP support called 'udp-and-tcp'.
+TCP will continue to be the default over UDP.
