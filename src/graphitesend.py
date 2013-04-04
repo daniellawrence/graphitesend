@@ -6,7 +6,7 @@ import os
 _module_instance = None
 __version__ = "0.0.1"
 
-graphite_server = 'graphite'
+default_graphite_server = 'graphite'
 
 class GraphiteSendException(Exception):
     pass
@@ -30,7 +30,7 @@ class GraphiteClient(object):
     apache.
 
     """
-    def __init__(self, host=None, port=2003, prefix=None,
+    def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
                  debug=False, group=None, system_name=None, suffix=None):
         """ setup the connection to the graphite server and work out the
         prefix.
@@ -39,11 +39,12 @@ class GraphiteClient(object):
 
         # If we are not passed a host, then use the graphite server defined
         # in the module.
-        if not host:
-            host = graphite_server
-        self.addr = (host, port)
+        if not graphite_server:
+            graphite_server = default_graphite_server
+        self.addr = (graphite_server, graphite_port)
         self.socket = self.connect()
         self.debug = debug
+        self.lastmessage = None
 
         if system_name is None:
             system_name = os.uname()[1]
@@ -130,7 +131,7 @@ class GraphiteClient(object):
                     ( self.addr, error ))
 
             
-        return "sent %d long message" % len(message)
+        return "sent %d long message: %s " % ( len(message), "".join(message[:75]) )
 
     def send(self, metric, value, timestamp=None):
         """ Format a single metric/value pair, and send it to the graphite
