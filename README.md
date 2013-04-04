@@ -45,10 +45,10 @@ The above would send the following metric to graphite
 Using a different prefix (other then system.hostname)
 
 ````python
-    >>> import graphitesend
-    >>> g = graphitesend.init(prefix='apache.rc')
-    >>> g.send('404', 4)
-    >>> g.send('200', 500)
+>>> import graphitesend
+>>> g = graphitesend.init(prefix='apache.rc')
+>>> g.send('404', 4)
+>>> g.send('200', 500)
 ````
 
 The above would send the following metric to graphite
