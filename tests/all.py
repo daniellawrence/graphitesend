@@ -22,13 +22,14 @@ class TestAll(unittest.TestCase):
         graphitesend.reset()
 
     def test_connect_exception_on_badhost(self):
+        """ TCP only. """
         graphitesend.graphite_server = 'missinggraphiteserver.example.com'
         with self.assertRaises(graphitesend.GraphiteSendException):
             graphite_instance = graphitesend.init()
 
     def test_create_graphitesend_instance(self):
         g = graphitesend.init()
-        expected_type = type(graphitesend.GraphiteClient())
+        expected_type = type(graphitesend.GraphiteSendUDP())
         g_type = type(g)
         self.assertEqual(g_type, expected_type)
 
@@ -97,12 +98,14 @@ class TestAll(unittest.TestCase):
         self.assertEqual(graphite_instance, None)
 
     def test_force_failure_on_send(self):
+        """ TCP only """
         graphite_instance = graphitesend.init()
         graphite_instance.disconnect()
         with self.assertRaises(graphitesend.GraphiteSendException):
             graphite_instance.send('metric', 0)
 
     def test_force_unknown_failure_on_send(self):
+        """ TCP only """
         graphite_instance = graphitesend.init()
         graphite_instance.socket = None
         with self.assertRaises(graphitesend.GraphiteSendException):
