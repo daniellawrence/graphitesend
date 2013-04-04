@@ -15,10 +15,10 @@ Example
 Very basic sending of a metric called metric with a value of 45
 
 ````python
-    >>> import graphitesend
-    >>> graphitesend.init()
-    >>> graphitesend.send('metric', 45)
-    >>> graphitesend.send('metric2', 55)
+>>> import graphitesend
+>>> graphitesend.init()
+>>> graphitesend.send('metric', 45)
+>>> graphitesend.send('metric2', 55)
 ````
 
 The above would send the following metric to graphite
@@ -30,10 +30,10 @@ The above would send the following metric to graphite
 Cleaning up the interface and using a group of cpu to alter the metric prefix
 
 ````python
-    >>> import graphitesend
-    >>> g = graphitesend.init(group='cpu')
-    >>> g.send('metric', 45)
-    >>> g.send('metric2', 55)
+>>> import graphitesend
+>>> g = graphitesend.init(group='cpu')
+>>> g.send('metric', 45)
+>>> g.send('metric2', 55)
 ````
 
 The above would send the following metric to graphite
