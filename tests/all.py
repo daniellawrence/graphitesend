@@ -65,6 +65,14 @@ class TestAll(unittest.TestCase):
         custom_prefix = g.prefix
         self.assertEqual(custom_prefix, expected_prefix)
 
+    def test_default_prefix(self):
+        g = graphitesend.init()
+        import os
+        hostname = os.uname()[1]
+        expected_prefix = "systems.%(hostname)s." % locals()
+        custom_prefix = g.prefix
+        self.assertEqual(custom_prefix, expected_prefix)
+
     def test_leave_suffix(self):
         g = graphitesend.init()
         default_suffix = g.suffix
