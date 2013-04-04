@@ -1,7 +1,7 @@
 graphitesend
 ============
 
-Easy python bindings to write to Carbon ( Re-write of carbonclient)
+Easy python bindings to write to Carbon ( Re-write of carbonclient).
 
 Build status
 -------------
@@ -64,6 +64,65 @@ Sending a dict()
     >>> g = graphitesend.init()
     >>> g.send_dict({'metric': 45, 'metric2': 55})
 ````
+
+Example: the init()
+----------------
+
+Set a metric prefix (Default arg)
+````python
+>>> g = graphitesend.init('prefix')
+>>> print g.send('metric', 1)
+>>> sent 34 long message: prefix.metric 1.000000 1365068929
+````
+
+set a metric prefix using kwargs
+````python
+>>> g = graphitesend.init(prefix='prefix')
+>>> print g.send('metric', 2)
+>>> # sent 34 long message: prefix.metric 2.000000 1365068929
+````
+ 
+view the default prefix, hardset systems. then followed by the name of the
+host that execute the send().
+````python
+>>> g = graphitesend.init()
+>>> print g.send('metric', 3)
+>>> # sent 44 long message: systems.<system_name>.metric 3.000000 1365069029
+````
+
+Set a suffix, handy if you have a bunch of timers or percentages
+````python
+>>> g = graphitesend.init(suffix='_ms')
+>>> print g.send('metric', 4)
+>>> # sent 47 long message: systems.<system_name>.metric_ms 4.000000 1365069100
+````
+
+set a system_name if your submitting results for a different system
+````python
+>>> g = graphitesend.init(system_name='othersystem')
+>>> print g.send('metric', 5)
+>>> # sent 47 long message: systems.othersystem.metric 5.000000 1365069100
+````
+
+Set a group name, handy if you just parsed iostat and want to prefix all the 
+metrics with iostat, after its already in the <system_name> directory.
+````python
+>>> g = graphitesend.init(group='groupname')
+>>> print g.send('metric', 6)
+>>> # sent 54 long message: systems.<system_name>.groupname.metric 6.000000 136506924
+````
+
+Connect to a different graphite server
+````python
+>>> graphitesend.init(graphite_server='graphite.example.com')
+````
+
+Connect to a different graphite server port
+````python
+>>> graphitesend.init(graphite_port=2003)
+````
+
+
 
 
 CLI
