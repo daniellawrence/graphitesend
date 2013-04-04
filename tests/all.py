@@ -16,6 +16,16 @@ class TestAll(unittest.TestCase):
         # running on one of my (dannyla@linux.com) systems.
         graphitesend.graphite_server = 'graphite.dansysadm.com'
 
+    def tearDown(self):
+        """ reset graphitesend """
+        # Drop any connections or modules that have been setup from other tests
+        graphitesend.reset()
+
+    def test_connect_exception_on_badhost(self):
+        graphitesend.graphite_server = 'missinggraphiteserver.example.com'
+        with self.assertRaises(graphitesend.GraphiteSendException):
+            graphite_instance = graphitesend.init()
+
     def test_create_graphitesend_instance(self):
         g = graphitesend.init()
         expected_type = type(graphitesend.GraphiteClient())
@@ -65,10 +75,22 @@ class TestAll(unittest.TestCase):
         self.assertEqual(metric_name, 'test__name')
 
     def test_reset(self):
-        g = graphitesend.init()
+        graphitesend.init()
         graphitesend.reset()
         graphite_instance = graphitesend._module_instance
         self.assertEqual(graphite_instance, None)
+
+    def test_force_failure_on_send(self):
+        graphite_instance = graphitesend.init()
+        graphite_instance.disconnect()
+        with self.assertRaises(graphitesend.GraphiteSendException):
+            graphite_instance.send('metric', 0)
+
+    def test_force_unknown_failure_on_send(self):
+        graphite_instance = graphitesend.init()
+        graphite_instance.socket = None
+        with self.assertRaises(graphitesend.GraphiteSendException):
+            graphite_instance.send('metric', 0)
         
 if __name__ == '__main__':
     unittest.main()
