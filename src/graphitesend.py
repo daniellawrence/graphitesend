@@ -182,8 +182,6 @@ def send(*args, **kwargs):
     if not _module_instance:
         raise GraphiteSendException("Must call graphitesend.init() before sending")
 
-    print args
-
     _module_instance.send(*args, **kwargs)
     return _module_instance
 
