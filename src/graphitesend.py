@@ -31,7 +31,8 @@ class GraphiteClient(object):
 
     """
     def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
-                 debug=False, group=None, system_name=None, suffix=None):
+                 debug=False, group=None, system_name=None, suffix=None,
+                 lowercase_metric_names=False):
         """ setup the connection to the graphite server and work out the
         prefix.
         This allows for very simple syntax when sending messages to the
@@ -45,6 +46,8 @@ class GraphiteClient(object):
         self.socket = self.connect()
         self.debug = debug
         self.lastmessage = None
+
+        self.lowercase_metric_names = lowercase_metric_names
 
         if system_name is None:
             system_name = os.uname()[1]
@@ -111,6 +114,11 @@ class GraphiteClient(object):
 
     def _send(self, message):
         """ Given a message send it to the graphite server. """
+
+        # An option to lowercase the entire message
+        if self.lowercase_metric_names:
+            message = message.lower()
+
         try:
             self.socket.sendall(message)
 
@@ -170,6 +178,29 @@ class GraphiteClient(object):
 
         message = "".join(metric_list)
         return self._send(message)
+
+    def send_list(self, data, timestamp=None):
+        """ Format a list of set's of (metric, value) pairs, and send them all
+        to the graphite server.
+        """
+        if timestamp is None:
+            timestamp = int(time.time())
+        else:
+            timestamp = int(timestamp)
+
+        metric_list = []
+
+        for metric, value in data:
+            if type(value).__name__ in ['str','unicode']:
+                print "metric='%(metric)s'  value='%(value)s'" % locals()
+                value = float(value)
+            tmp_message = "%s%s%s %f %d\n" % (self.prefix, metric,
+                                              self.suffix, value, timestamp)
+            metric_list.append(tmp_message)
+
+        message = "".join(metric_list)
+        return self._send(message)
+
 
 
 def init(*args, **kwargs):
