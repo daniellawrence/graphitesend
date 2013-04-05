@@ -3,9 +3,14 @@ graphitesend
 
 Easy python bindings to write to Carbon ( Re-write of carbonclient).
 
+
 Build status
 -------------
 [![Build Status](https://travis-ci.org/daniellawrence/graphitesend.png)](https://travis-ci.org/daniellawrence/graphitesend)
+
+Blog posts
+-----------
+[dansysadm.com](http://dansysadm.com/blog/sending_data_to_graphte_from_python.html)
 
 
 
