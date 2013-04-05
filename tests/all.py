@@ -61,7 +61,7 @@ class TestAll(unittest.TestCase):
         g = graphitesend.init(group='custom_group')
         import os
         hostname = os.uname()[1]
-        expected_prefix = "systems.%(hostname)s.custom_group." % locals()
+        expected_prefix = "systems.%(hostname)s.custom_group" % locals()
         custom_prefix = g.prefix
         self.assertEqual(custom_prefix, expected_prefix)
 
