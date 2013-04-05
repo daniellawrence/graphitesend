@@ -104,6 +104,14 @@ set a system_name if your submitting results for a different system
 sent 47 long message: systems.othersystem.metric 5.000000 1365069100
 ````
 
+Lowercase all the metric names that are send to the graphite server.
+````python
+>>> g = graphitesend.init(lowercase_metric_names=True)
+>>> print g.send('METRIC', 6)
+sent 47 long message: systems.<hostname>.metric 6.000000 1365069100
+````
+
+
 Set a group name, handy if you just parsed iostat and want to prefix all the 
 metrics with iostat, after its already in the <system_name> directory.
 ````python
