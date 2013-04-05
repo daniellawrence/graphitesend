@@ -52,11 +52,11 @@ class GraphiteClient(object):
         if prefix is None:
             prefix = "systems.%(system_name)s" % locals()
 
-        if group:
-            prefix = prefix + "." + group
-
         if prefix:
             prefix = prefix + "."
+
+        if group:
+            prefix = prefix + "." + group
 
         # remove double dots
         if '..' in prefix:
@@ -142,6 +142,9 @@ class GraphiteClient(object):
         else:
             timestamp = int(timestamp)
 
+        if type(value).__name__ in ['str','unicode']:
+            value = float(value)
+
         message = "%s%s%s %f %d\n" % (self.prefix, metric, self.suffix,
                                       value, timestamp)
 
@@ -159,6 +162,8 @@ class GraphiteClient(object):
         metric_list = []
 
         for metric, value in data.items():
+            if type(value).__name__ in ['str','unicode']:
+                value = float(value)
             tmp_message = "%s%s%s %f %d\n" % (self.prefix, metric,
                                               self.suffix, value, timestamp)
             metric_list.append(tmp_message)
