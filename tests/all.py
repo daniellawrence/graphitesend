@@ -26,6 +26,16 @@ class TestAll(unittest.TestCase):
         with self.assertRaises(graphitesend.GraphiteSendException):
             graphite_instance = graphitesend.init()
 
+    def test_set_lowercase_metric_names(self):
+        g = graphitesend.init(lowercase_metric_names=True)
+        self.assertEqual(g.lowercase_metric_names, True)
+
+    def test_lowercase_metric_names(self):
+        g = graphitesend.init(lowercase_metric_names=True)
+        send_data = g.send('METRIC', 1)
+        self.assertEqual('metric' in send_data, True)
+        self.assertEqual('METRIC' in send_data, False)
+
     def test_create_graphitesend_instance(self):
         g = graphitesend.init()
         expected_type = type(graphitesend.GraphiteClient())
