@@ -1,0 +1,9 @@
+Package: graphitesend
+Version: 0.0.4-1
+Architecture: all
+Maintainer: Danny Lawrence <dannyla@linux.com>
+Installed-Size: 53
+Section: misc
+Priority: optional
+Description: send metrics to graphite
+ Python library that makes it easy to graphite.

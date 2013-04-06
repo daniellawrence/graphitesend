@@ -1,0 +1,6 @@
+07b922eb0283ce8a07181b2b8597ecb8  usr/bin/graphitesend
+a5942d5fe94608e505b4c6eddc426df6  usr/share/doc/graphitesend/changelog.Debian.gz
+d41d8cd98f00b204e9800998ecf8427e  usr/share/doc/graphitesend/copyright
+79a4922f490e44cfdee945162b5532b8  usr/share/pyshared/graphitesend-0.0.5.egg-info
+0ab772ecb2ca8b54cc275892ad44546d  usr/share/pyshared/graphitesend.py
+4c08ba19af0256dd6d8831eaa40a6fb3  usr/share/python-support/graphitesend.public
