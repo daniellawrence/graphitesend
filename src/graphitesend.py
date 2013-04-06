@@ -4,7 +4,7 @@ import time
 import socket
 import os
 _module_instance = None
-__version__ = "0.0.1"
+__version__ = "0.0.5"
 
 default_graphite_server = 'graphite'
 
