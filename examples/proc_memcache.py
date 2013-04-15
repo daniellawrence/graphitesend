@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-import graphitesend                             
- 
-g = graphitesend.init(group='meminfo.', suffix='_mb', lowercase_metric_names=True)
+import graphitesend
+
+g = graphitesend.init(group='meminfo.', suffix='_mb',
+                      lowercase_metric_names=True)
 data = []
-for line in  open('/proc/meminfo').readlines():
+for line in open('/proc/meminfo').readlines():
     bits = line.split()
 
     # We dont care about the pages.
@@ -12,7 +13,7 @@ for line in  open('/proc/meminfo').readlines():
 
     # remove the : from the metric name
     metric = bits[0]
-    metric = metric.replace(':','')
+    metric = metric.replace(':', '')
 
     # Covert the default kb into mb
     value = int(bits[1])
