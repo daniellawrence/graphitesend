@@ -8,8 +8,10 @@ __version__ = "0.0.5"
 
 default_graphite_server = 'graphite'
 
+
 class GraphiteSendException(Exception):
     pass
+
 
 class GraphiteClient(object):
     """ Graphite Client that will setup a TCP connection to your graphite
@@ -63,11 +65,11 @@ class GraphiteClient(object):
 
         # remove double dots
         if '..' in prefix:
-            prefix = prefix.replace('..','.')
+            prefix = prefix.replace('..', '.')
 
         # Replace ' 'spaces with _
         if ' ' in prefix:
-            prefix = prefix.replace(' ','_')
+            prefix = prefix.replace(' ', '_')
 
         if suffix:
             self.suffix = suffix
@@ -84,10 +86,12 @@ class GraphiteClient(object):
         try:
             local_socket.connect(self.addr)
         except socket.timeout:
-            raise GraphiteSendException("Took over %d seconds to connect to %s" %
-                            (timeout_in_seconds, self.addr))
+            raise GraphiteSendException(
+                "Took over %d second(s) to connect to %s" %
+                (timeout_in_seconds, self.addr))
         except socket.gaierror:
-            raise GraphiteSendException("No address assoicated with hostname %s:%s" % self.addr )
+            raise GraphiteSendException(
+                "No address assoicated with hostname %s:%s" % self.addr)
         return local_socket
 
     def clean_metric_name(self, metric_name):
@@ -110,7 +114,6 @@ class GraphiteClient(object):
         # Set the self.socket to None, no matter what.
         finally:
             self.socket = None
-            
 
     def _send(self, message):
         """ Given a message send it to the graphite server. """
@@ -125,21 +128,21 @@ class GraphiteClient(object):
         # Capture missing socket.
         except socket.gaierror as error:
             raise GraphiteSendException(
-                    "Failed to send data to %s, with error: %s" % 
-                    ( self.addr, error ))
+                "Failed to send data to %s, with error: %s" %
+                (self.addr, error))
 
         # Capture socket closure before send.
         except socket.error as error:
             raise GraphiteSendException(
-                    "Socket closed before able to send data to %s, with error: %s" % 
-                    ( self.addr, error ))
+                "Socket closed before able to send data to %s, with error: %s" %
+                (self.addr, error))
+
         except Exception as error:
             raise GraphiteSendException(
-                    "Unknown error while tring to send data down socket to %s, error: %s" %
-                    ( self.addr, error ))
+                "Unknown error while tring to send data down socket to %s, error: %s" %
+                (self.addr, error))
 
-            
-        return "sent %d long message: %s " % ( len(message), "".join(message[:75]) )
+        return "sent %d long message: %s" % (len(message), "".join(message[:75]))
 
     def send(self, metric, value, timestamp=None):
         """ Format a single metric/value pair, and send it to the graphite
@@ -150,7 +153,7 @@ class GraphiteClient(object):
         else:
             timestamp = int(timestamp)
 
-        if type(value).__name__ in ['str','unicode']:
+        if type(value).__name__ in ['str', 'unicode']:
             value = float(value)
 
         message = "%s%s%s %f %d\n" % (self.prefix, metric, self.suffix,
@@ -170,7 +173,7 @@ class GraphiteClient(object):
         metric_list = []
 
         for metric, value in data.items():
-            if type(value).__name__ in ['str','unicode']:
+            if type(value).__name__ in ['str', 'unicode']:
                 value = float(value)
             tmp_message = "%s%s%s %f %d\n" % (self.prefix, metric,
                                               self.suffix, value, timestamp)
@@ -191,7 +194,7 @@ class GraphiteClient(object):
         metric_list = []
 
         for metric, value in data:
-            if type(value).__name__ in ['str','unicode']:
+            if type(value).__name__ in ['str', 'unicode']:
                 print "metric='%(metric)s'  value='%(value)s'" % locals()
                 value = float(value)
             tmp_message = "%s%s%s %f %d\n" % (self.prefix, metric,
@@ -200,7 +203,6 @@ class GraphiteClient(object):
 
         message = "".join(metric_list)
         return self._send(message)
-
 
 
 def init(*args, **kwargs):
@@ -217,7 +219,8 @@ def send(*args, **kwargs):
     User consumable method.
     """
     if not _module_instance:
-        raise GraphiteSendException("Must call graphitesend.init() before sending")
+        raise GraphiteSendException(
+            "Must call graphitesend.init() before sending")
 
     _module_instance.send(*args, **kwargs)
     return _module_instance
@@ -229,9 +232,11 @@ def send_dict(*args, **kwargs):
     User consumable method.
     """
     if not _module_instance:
-        raise GraphiteSendException("Must call graphitesend.init() before sending")
+        raise GraphiteSendException(
+            "Must call graphitesend.init() before sending")
     _module_instance.send_dict(*args, **kwargs)
     return _module_instance
+
 
 def send_list(*args, **kwargs):
     """ Make sure that we have an instance of the GraphiteClient.
@@ -239,7 +244,8 @@ def send_list(*args, **kwargs):
     User consumable method.
     """
     if not _module_instance:
-        raise GraphiteSendException("Must call graphitesend.init() before sending")
+        raise GraphiteSendException(
+            "Must call graphitesend.init() before sending")
     _module_instance.send_list(*args, **kwargs)
     return _module_instance
 
@@ -272,6 +278,7 @@ def cli():
 
     graphitesend_instance = init()
     graphitesend_instance.send(metric, value)
+
 
 def main():
     """ Basic testing. """
