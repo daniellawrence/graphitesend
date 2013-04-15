@@ -7,7 +7,6 @@ import graphitesend
 class TestAll(unittest.TestCase):
     """ Basic tests ( better than nothing ) """
 
-
     def setUp(self):
         """ reset graphitesend """
         # Drop any connections or modules that have been setup from other tests
@@ -22,9 +21,10 @@ class TestAll(unittest.TestCase):
         graphitesend.reset()
 
     def test_connect_exception_on_badhost(self):
-        graphitesend.default_graphite_server = 'missinggraphiteserver.example.com'
+        bad_graphite_server = 'missinggraphiteserver.example.com'
+        graphitesend.default_graphite_server = bad_graphite_server
         with self.assertRaises(graphitesend.GraphiteSendException):
-            graphite_instance = graphitesend.init()
+            graphitesend.init()
 
     def test_set_lowercase_metric_names(self):
         g = graphitesend.init(lowercase_metric_names=True)
@@ -45,27 +45,27 @@ class TestAll(unittest.TestCase):
     def test_monkey_patch_of_graphitehost(self):
         g = graphitesend.init()
         custom_prefix = g.addr[0]
-        self.assertEqual(custom_prefix, 'graphite.dansysadm.com') 
+        self.assertEqual(custom_prefix, 'graphite.dansysadm.com')
 
     def test_prefix(self):
         g = graphitesend.init(prefix='custom_prefix')
         custom_prefix = g.prefix
-        self.assertEqual(custom_prefix, 'custom_prefix.') 
+        self.assertEqual(custom_prefix, 'custom_prefix.')
 
     def test_prefix_double_dot(self):
         g = graphitesend.init(prefix='custom_prefix.')
         custom_prefix = g.prefix
-        self.assertEqual(custom_prefix, 'custom_prefix.') 
+        self.assertEqual(custom_prefix, 'custom_prefix.')
 
     def test_prefix_remove_spaces(self):
         g = graphitesend.init(prefix='custom prefix')
         custom_prefix = g.prefix
-        self.assertEqual(custom_prefix, 'custom_prefix.') 
+        self.assertEqual(custom_prefix, 'custom_prefix.')
 
     def test_set_suffix(self):
         g = graphitesend.init(suffix='custom_suffix')
         custom_suffix = g.suffix
-        self.assertEqual(custom_suffix, 'custom_suffix') 
+        self.assertEqual(custom_suffix, 'custom_suffix')
 
     def test_set_group_prefix(self):
         g = graphitesend.init(group='custom_group')
@@ -86,17 +86,17 @@ class TestAll(unittest.TestCase):
     def test_leave_suffix(self):
         g = graphitesend.init()
         default_suffix = g.suffix
-        self.assertEqual(default_suffix, '') 
+        self.assertEqual(default_suffix, '')
 
     def test_clean_metric(self):
         g = graphitesend.init()
-        # 
+        #
         metric_name = g.clean_metric_name('test(name)')
         self.assertEqual(metric_name, 'test_name')
-        # 
+        #
         metric_name = g.clean_metric_name('test name')
         self.assertEqual(metric_name, 'test_name')
-        # 
+        #
         metric_name = g.clean_metric_name('test  name')
         self.assertEqual(metric_name, 'test__name')
 
@@ -117,7 +117,6 @@ class TestAll(unittest.TestCase):
         graphite_instance.socket = None
         with self.assertRaises(graphitesend.GraphiteSendException):
             graphite_instance.send('metric', 0)
-        
+
 if __name__ == '__main__':
     unittest.main()
-    
