@@ -122,6 +122,11 @@ class GraphiteClient(object):
         if self.lowercase_metric_names:
             message = message.lower()
 
+        if not self.socket:
+            raise GraphiteSendException(
+                "Socket was not created before send"
+                )
+
         try:
             self.socket.sendall(message)
 
