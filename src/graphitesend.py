@@ -3,10 +3,14 @@
 import time
 import socket
 import os
+import pickle
+import struct
 _module_instance = None
 __version__ = "0.0.5"
 
 default_graphite_server = 'graphite'
+default_graphite_plaintext_port = 2003
+default_graphite_pickle_port = 2004
 
 
 class GraphiteSendException(Exception):
@@ -34,7 +38,7 @@ class GraphiteClient(object):
     """
     def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
                  debug=False, group=None, system_name=None, suffix=None,
-                 lowercase_metric_names=False):
+                 lowercase_metric_names=False, connect_on_create=True):
         """ setup the connection to the graphite server and work out the
         prefix.
         This allows for very simple syntax when sending messages to the
@@ -45,7 +49,12 @@ class GraphiteClient(object):
         if not graphite_server:
             graphite_server = default_graphite_server
         self.addr = (graphite_server, graphite_port)
-        self.socket = self.connect()
+
+        # Only connect to the graphite server and port if we tell you too.
+        # This is mosty used for testing.
+        if connect_on_create:
+            self.socket = self.connect()
+
         self.debug = debug
         self.lastmessage = None
 
@@ -142,7 +151,8 @@ class GraphiteClient(object):
                 "Unknown error while tring to send data down socket to %s, error: %s" %
                 (self.addr, error))
 
-        return "sent %d long message: %s" % (len(message), "".join(message[:75]))
+        return "sent %d long message: %s" % (len(message),
+                                             "".join(message[:75]))
 
     def send(self, metric, value, timestamp=None):
         """ Format a single metric/value pair, and send it to the graphite
@@ -203,6 +213,75 @@ class GraphiteClient(object):
 
         message = "".join(metric_list)
         return self._send(message)
+
+
+class GraphitePickleClient(GraphiteClient):
+
+    def __init__(self, *args, **kwargs):
+        # If the user has not given a graphite_port, then use the default pick
+        # port.
+        if 'graphite_port' not in kwargs:
+            kwargs['graphite_port'] = default_graphite_pickle_port
+
+        # TODO: Fix this hack and use super.
+        self = GraphiteClient(*args, **kwargs)
+
+    def str2listtuple(self, string_message):
+        "Covert a string that is ready to be sent to graphite into a tuple"
+
+        if type(string_message).__name__ not in ('str', 'unicode'):
+            raise TypeError("Must provide a string or unicode")
+
+        tpl_list = []
+        for line in string_message.split('\n'):
+            try:
+                (path, metric, timestamp) = line.split()
+            except ValueError:
+                raise ValueError("message must contain - pain, metric and timestamp")
+            try:
+                timestamp = float(timestamp)
+            except ValueError:
+                raise ValueError("Timestamp must be float or int")
+
+            tpl_list.append((path, (timestamp, metric)))
+
+        payload = pickle.dumps(tpl_list)
+        header = struct.pack("!L", len(payload))
+        message = header + payload
+
+        return message
+
+    def _send(self, message):
+        """ Given a message send it to the graphite server. """
+
+        # An option to lowercase the entire message
+        if self.lowercase_metric_names:
+            message = message.lower()
+
+        # convert the message into a pickled payload.
+        message = self.str2listtupe(message)
+
+        try:
+            self.socket.sendall(message)
+
+        # Capture missing socket.
+        except socket.gaierror as error:
+            raise GraphiteSendException(
+                "Failed to send data to %s, with error: %s" %
+                (self.addr, error))
+
+        # Capture socket closure before send.
+        except socket.error as error:
+            raise GraphiteSendException(
+                "Socket closed before able to send data to %s, with error: %s" %
+                (self.addr, error))
+
+        except Exception as error:
+            raise GraphiteSendException(
+                "Unknown error while tring to send data down socket to %s, error: %s" %
+                (self.addr, error))
+
+        return "sent %d long pickled message: %s" % len(message)
 
 
 def init(*args, **kwargs):
