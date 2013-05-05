@@ -198,12 +198,25 @@ class GraphiteClient(object):
 
         metric_list = []
 
-        for metric, value in data:
+        for metric_info in data:
+
+            # Support [ (metric, value, timestamp), ... ] as well as 
+            # [ (metric, value), ... ].
+            # If the metric_info provides a timestamp then use the timestamp.
+            # If the metric_info fails to provide a timestamp, use the one
+            # provided to send_list() or generated on the fly by time.time()
+            if len(metric_info) == 3:
+                (metric, value, metric_timestamp) = metric_info
+            else:
+                (metric, value) = metric_info
+                metric_timestamp = timestamp
+
             if type(value).__name__ in ['str', 'unicode']:
                 print "metric='%(metric)s'  value='%(value)s'" % locals()
                 value = float(value)
+
             tmp_message = "%s%s%s %f %d\n" % (self.prefix, metric,
-                                              self.suffix, value, timestamp)
+                                              self.suffix, value, metric_timestamp)
             metric_list.append(tmp_message)
 
         message = "".join(metric_list)

@@ -118,5 +118,83 @@ class TestAll(unittest.TestCase):
         with self.assertRaises(graphitesend.GraphiteSendException):
             graphite_instance.send('metric', 0)
 
+    def test_send_list_metric_value(self):
+        graphite_instance = graphitesend.init(prefix='test')
+        response = graphite_instance.send_list([('metric', 1)])
+        self.assertEqual('sent 32 long message: test.metric' in response, True)
+        self.assertEqual('1.00000' in response, True)
+
+    def test_send_list_metric_value_single_timestamp(self):
+        # Make sure it can handle custom timestamp
+        graphite_instance = graphitesend.init(prefix='test')
+        response = graphite_instance.send_list([('metric', 1)], timestamp=1)
+        #self.assertEqual('sent 23 long message: test.metric' in response, True)
+        self.assertEqual('1.00000' in response, True)
+        self.assertEqual(response.endswith('1\n'), True)
+
+    def test_send_list_metric_value_timestamp(self):
+        graphite_instance = graphitesend.init(prefix='test')
+
+        # Make sure it can handle custom timestamp
+        response = graphite_instance.send_list([('metric', 1, 1)])
+        #self.assertEqual('sent 23 long message: test.metric' in response, True)
+        self.assertEqual('1.00000' in response, True)
+        self.assertEqual(response.endswith('1\n'), True)
+
+    def test_send_list_metric_value_timestamp_2(self):
+        graphite_instance = graphitesend.init(prefix='test')
+        # Make sure it can handle custom timestamp
+        response = graphite_instance.send_list([('metric', 1, 1), ('metric', 1, 2)])
+        #self.assertEqual('sent 46 long message:' in response, True)
+        self.assertEqual('test.metric 1.000000 1' in response, True)
+        self.assertEqual('test.metric 1.000000 2' in response, True)
+
+    def test_send_list_metric_value_timestamp_3(self):
+        graphite_instance = graphitesend.init(prefix='test')
+        # Make sure it can handle custom timestamp, fill in the missing with the
+        # current time.
+        response = graphite_instance.send_list(
+                [
+                    ('metric', 1, 1), 
+                    ('metric', 2),
+                ]
+                )
+
+        #self.assertEqual('sent 46 long message:' in response, True)
+        self.assertEqual('test.metric 1.000000 1' in response, True)
+        self.assertEqual('test.metric 2.000000 2' not in response, True)
+
+    def test_send_list_metric_value_timestamp_default(self):
+        graphite_instance = graphitesend.init(prefix='test')
+        # Make sure it can handle custom timestamp, fill in the missing with the
+        # current time.
+        response = graphite_instance.send_list(
+                [
+                    ('metric', 1, 1), 
+                    ('metric', 2),
+                ],
+                timestamp='4'
+                )
+        #self.assertEqual('sent 69 long message:' in response, True)
+        self.assertEqual('test.metric 1.000000 1' in response, True)
+        self.assertEqual('test.metric 2.000000 4' in response, True)
+        
+    def test_send_list_metric_value_timestamp_default_2(self):
+        graphite_instance = graphitesend.init(prefix='test')
+        # Make sure it can handle custom timestamp, fill in the missing with the
+        # current time.
+        response = graphite_instance.send_list(
+                [
+                    ('metric', 1), 
+                    ('metric', 2, 2),
+                ],
+                timestamp='4'
+                )
+        #self.assertEqual('sent 69 long message:' in response, True)
+        self.assertEqual('test.metric 1.000000 4' in response, True)
+        self.assertEqual('test.metric 2.000000 2' in response, True)
+        
+
+
 if __name__ == '__main__':
     unittest.main()
