@@ -3,7 +3,7 @@
 import time
 import socket
 import os
-import pickle
+#import pickle
 import struct
 _module_instance = None
 __version__ = "0.0.7"
@@ -38,7 +38,8 @@ class GraphiteClient(object):
     """
     def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
                  debug=False, group=None, system_name=None, suffix=None,
-                 lowercase_metric_names=False, connect_on_create=True):
+                 lowercase_metric_names=False, connect_on_create=True,
+                 dryrun=False):
         """ setup the connection to the graphite server and work out the
         prefix.
         This allows for very simple syntax when sending messages to the
@@ -49,6 +50,14 @@ class GraphiteClient(object):
         if not graphite_server:
             graphite_server = default_graphite_server
         self.addr = (graphite_server, graphite_port)
+
+        # If we want to do a dry run of the operations and not send data to the
+        # graphite server, then do not try to connect to the server at all.
+        # We also set the self.addr to None, to make sure that nothing slips
+        # over the network and on to the graphite server.
+        if dryrun:
+            connect_on_create = False
+            self.addr = None
 
         # Only connect to the graphite server and port if we tell you too.
         # This is mosty used for testing.
@@ -87,8 +96,16 @@ class GraphiteClient(object):
 
         self.prefix = prefix
 
+    def dryrun(self, message):
+        "Dont send anything over the network, just pring the message"
+        print "message: %s" % message
+        return message
+
     def connect(self):
         """ Make a TCP connection to the graphite server on port self.port """
+        if self.dryrun:
+            raise GraphiteSendException(
+                "You are trying to connect while running a dryrun")
         timeout_in_seconds = 2
         local_socket = socket.socket()
         local_socket.settimeout(timeout_in_seconds)
@@ -124,12 +141,18 @@ class GraphiteClient(object):
         finally:
             self.socket = None
 
-    def _send(self, message):
-        """ Given a message send it to the graphite server. """
+    def _presend(self, message):
+        """This is invoked just before the send to do any last minute changes to
+        the message"""
 
         # An option to lowercase the entire message
         if self.lowercase_metric_names:
-            message = message.lower()
+            return message.lower()
+        return message
+
+    def _send(self, message):
+        """ Given a message send it to the graphite server. """
+
 
         try:
             self.socket.sendall(message)
@@ -168,6 +191,10 @@ class GraphiteClient(object):
 
         message = "%s%s%s %f %d\n" % (self.prefix, metric, self.suffix,
                                       value, timestamp)
+
+        message = self._presend(message)
+        if self.dryrun:
+            return self.dryrun(message)
 
         return self._send(message)
 
@@ -224,7 +251,7 @@ class GraphitePickleClient(GraphiteClient):
             kwargs['graphite_port'] = default_graphite_pickle_port
 
         # TODO: Fix this hack and use super.
-        self = GraphiteClient(*args, **kwargs)
+        #self = GraphiteClient(*args, **kwargs)
 
     def str2listtuple(self, string_message):
         "Covert a string that is ready to be sent to graphite into a tuple"
