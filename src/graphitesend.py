@@ -6,7 +6,7 @@ import os
 import pickle
 import struct
 _module_instance = None
-__version__ = "0.0.5"
+__version__ = "0.0.7"
 
 default_graphite_server = 'graphite'
 default_graphite_plaintext_port = 2003
@@ -237,7 +237,8 @@ class GraphitePickleClient(GraphiteClient):
             try:
                 (path, metric, timestamp) = line.split()
             except ValueError:
-                raise ValueError("message must contain - pain, metric and timestamp")
+                raise ValueError(
+                    "message must contain - pain, metric and timestamp")
             try:
                 timestamp = float(timestamp)
             except ValueError:
@@ -284,11 +285,28 @@ class GraphitePickleClient(GraphiteClient):
         return "sent %d long pickled message: %s" % len(message)
 
 
-def init(*args, **kwargs):
+def init(init_type='plaintext_tcp', *args, **kwargs):
     """ Create the module instance of the GraphiteClient. """
     global _module_instance
     reset()
-    _module_instance = GraphiteClient(*args, **kwargs)
+
+    validate_init_types = ['plaintext_tcp', 'plaintext', 'pickle_tcp',
+                           'pickle', 'plain']
+
+    if init_type not in validate_init_types:
+        raise GraphiteSendException(
+            "Invalidte init_type '%s', must be one of: %s" %
+            (init_type, ", ".join(validate_init_types)))
+
+    # Use TCP to send data to the plain text reciever on the graphite server.
+    if init_type in ['plaintext_tcp', 'plaintext', 'plain']:
+        _module_instance = GraphiteClient(*args, **kwargs)
+
+    # Use TCP to send pickled data to the pickle reciver on the graphite
+    # server.
+    if init_type in ['pickle_tcp', 'picke']:
+        _module_instance = GraphiteClient(*args, **kwargs)
+
     return _module_instance
 
 
@@ -358,12 +376,5 @@ def cli():
     graphitesend_instance = init()
     graphitesend_instance.send(metric, value)
 
-
-def main():
-    """ Basic testing. """
-    print "Sending test metric 'graphitesend_test'"
-    graphitesend_instance = init()
-    graphitesend_instance.send('graphitesend_test', 54)
-
 if __name__ == '__main__':
-    main()
+    cli()
