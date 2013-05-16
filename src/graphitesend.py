@@ -101,6 +101,12 @@ class GraphiteClient(object):
         except socket.gaierror:
             raise GraphiteSendException(
                 "No address assoicated with hostname %s:%s" % self.addr)
+        except Exception as error:
+            raise GraphiteSendException(
+                "unknown exception while connecting to %s - %s" %
+                (self.addr, error)
+            )
+
         return local_socket
 
     def clean_metric_name(self, metric_name):
@@ -131,6 +137,11 @@ class GraphiteClient(object):
         if self.lowercase_metric_names:
             message = message.lower()
 
+        if not self.socket:
+            raise GraphiteSendException(
+                "Socket was not created before send"
+            )
+
         try:
             self.socket.sendall(message)
 
@@ -144,15 +155,17 @@ class GraphiteClient(object):
         except socket.error as error:
             raise GraphiteSendException(
                 "Socket closed before able to send data to %s, with error: %s" %
-                (self.addr, error))
+                (self.addr, error)
+            )
 
         except Exception as error:
             raise GraphiteSendException(
                 "Unknown error while tring to send data down socket to %s, error: %s" %
-                (self.addr, error))
+                (self.addr, error)
+            )
 
-        return "sent %d long message: %s" % (len(message),
-                                             "".join(message[:75]))
+        return "sent %d long message: %s" % \
+            (len(message), "".join(message[:75]))
 
     def send(self, metric, value, timestamp=None):
         """ Format a single metric/value pair, and send it to the graphite
@@ -203,12 +216,25 @@ class GraphiteClient(object):
 
         metric_list = []
 
-        for metric, value in data:
+        for metric_info in data:
+
+            # Support [ (metric, value, timestamp), ... ] as well as
+            # [ (metric, value), ... ].
+            # If the metric_info provides a timestamp then use the timestamp.
+            # If the metric_info fails to provide a timestamp, use the one
+            # provided to send_list() or generated on the fly by time.time()
+            if len(metric_info) == 3:
+                (metric, value, metric_timestamp) = metric_info
+            else:
+                (metric, value) = metric_info
+                metric_timestamp = timestamp
+
             if type(value).__name__ in ['str', 'unicode']:
                 print "metric='%(metric)s'  value='%(value)s'" % locals()
                 value = float(value)
+
             tmp_message = "%s%s%s %f %d\n" % (self.prefix, metric,
-                                              self.suffix, value, timestamp)
+                                              self.suffix, value, metric_timestamp)
             metric_list.append(tmp_message)
 
         message = "".join(metric_list)
