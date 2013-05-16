@@ -92,6 +92,12 @@ class GraphiteClient(object):
         except socket.gaierror:
             raise GraphiteSendException(
                 "No address assoicated with hostname %s:%s" % self.addr)
+        except Exception as error:
+            raise GraphiteSendException(
+                "unknown exception while connecting to %s - %s" %
+                (self.addr, error)
+            )
+
         return local_socket
 
     def clean_metric_name(self, metric_name):
@@ -125,7 +131,7 @@ class GraphiteClient(object):
         if not self.socket:
             raise GraphiteSendException(
                 "Socket was not created before send"
-                )
+            )
 
         try:
             self.socket.sendall(message)
@@ -140,14 +146,17 @@ class GraphiteClient(object):
         except socket.error as error:
             raise GraphiteSendException(
                 "Socket closed before able to send data to %s, with error: %s" %
-                (self.addr, error))
+                (self.addr, error)
+            )
 
         except Exception as error:
             raise GraphiteSendException(
                 "Unknown error while tring to send data down socket to %s, error: %s" %
-                (self.addr, error))
+                (self.addr, error)
+            )
 
-        return "sent %d long message: %s" % (len(message), "".join(message[:75]))
+        return "sent %d long message: %s" % \
+            (len(message), "".join(message[:75]))
 
     def send(self, metric, value, timestamp=None):
         """ Format a single metric/value pair, and send it to the graphite
@@ -200,7 +209,7 @@ class GraphiteClient(object):
 
         for metric_info in data:
 
-            # Support [ (metric, value, timestamp), ... ] as well as 
+            # Support [ (metric, value, timestamp), ... ] as well as
             # [ (metric, value), ... ].
             # If the metric_info provides a timestamp then use the timestamp.
             # If the metric_info fails to provide a timestamp, use the one
