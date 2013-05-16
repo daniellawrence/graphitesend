@@ -3,7 +3,7 @@
 import time
 import socket
 import os
-#import pickle
+import pickle
 import struct
 _module_instance = None
 __version__ = "0.0.7"
@@ -51,13 +51,13 @@ class GraphiteClient(object):
             graphite_server = default_graphite_server
         self.addr = (graphite_server, graphite_port)
 
-        # If we want to do a dry run of the operations and not send data to the
-        # graphite server, then do not try to connect to the server at all.
-        # We also set the self.addr to None, to make sure that nothing slips
-        # over the network and on to the graphite server.
-        if dryrun:
-            connect_on_create = False
+        # If this is a dry run, then we do not want to configure a connection
+        # or try and make the connection once we create the object.
+        self.dryrun = dryrun
+        if self.dryrun:
             self.addr = None
+            graphite_server = None
+            connect_on_create = False
 
         # Only connect to the graphite server and port if we tell you too.
         # This is mosty used for testing.
@@ -159,7 +159,6 @@ class GraphiteClient(object):
     def _send(self, message):
         """ Given a message send it to the graphite server. """
 
-
         if not self.socket:
             raise GraphiteSendException(
                 "Socket was not created before send"
@@ -207,7 +206,7 @@ class GraphiteClient(object):
 
         message = self._presend(message)
         if self.dryrun:
-            return self.dryrun(message)
+            return message
 
         return self._send(message)
 
