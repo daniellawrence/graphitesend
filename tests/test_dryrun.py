@@ -11,6 +11,7 @@ class TestDryRun(unittest.TestCase):
         """ reset graphitesend """
         # Drop any connections or modules that have been setup from other tests
         graphitesend.reset()
+        graphitesend.default_graphite_server = 'localhost'
 
     def testEmptyAddr(self):
         g = graphitesend.init(prefix='', dryrun=True)

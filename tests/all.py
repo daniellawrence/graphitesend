@@ -13,7 +13,8 @@ class TestAll(unittest.TestCase):
         graphitesend.reset()
         # Monkeypatch the graphitesend so that it points at a graphite service
         # running on one of my (dannyla@linux.com) systems.
-        graphitesend.default_graphite_server = 'graphite.dansysadm.com'
+        #graphitesend.default_graphite_server = 'graphite.dansysadm.com'
+        graphitesend.default_graphite_server = 'localhost'
 
     def tearDown(self):
         """ reset graphitesend """
@@ -45,7 +46,7 @@ class TestAll(unittest.TestCase):
     def test_monkey_patch_of_graphitehost(self):
         g = graphitesend.init()
         custom_prefix = g.addr[0]
-        self.assertEqual(custom_prefix, 'graphite.dansysadm.com')
+        self.assertEqual(custom_prefix, 'localhost')t c
 
     def test_prefix(self):
         g = graphitesend.init(prefix='custom_prefix')
