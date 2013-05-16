@@ -70,6 +70,30 @@ Sending a dict()
     >>> g.send_dict({'metric': 45, 'metric2': 55})
 ````
 
+Sending a list()
+
+````python
+    >>> import graphitesend
+    >>> g = graphitesend.init()
+    >>> g.send_list([('metric', 45), ('metric2', 55)])
+````
+
+Sending a list(), with a custom timestamp for all metric-value pairs
+
+````python
+    >>> import graphitesend
+    >>> g = graphitesend.init()
+    >>> g.send_list([('metric', 45), ('metric2', 55)], timestamp=12345)
+````
+
+Sending a list(), with a custom timestamp for each metric-value pairs
+
+````python
+    >>> import graphitesend
+    >>> g = graphitesend.init()
+    >>> g.send_list([('metric', 45, 1234), ('metric2', 55, 1234)])
+````
+
 Example: the init()
 ----------------
 
