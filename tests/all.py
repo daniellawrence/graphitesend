@@ -46,7 +46,7 @@ class TestAll(unittest.TestCase):
     def test_monkey_patch_of_graphitehost(self):
         g = graphitesend.init()
         custom_prefix = g.addr[0]
-        self.assertEqual(custom_prefix, 'localhost')t c
+        self.assertEqual(custom_prefix, 'localhost')
 
     def test_prefix(self):
         g = graphitesend.init(prefix='custom_prefix')
