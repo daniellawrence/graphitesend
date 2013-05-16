@@ -94,6 +94,18 @@ Sending a list(), with a custom timestamp for each metric-value pairs
     >>> g.send_list([('metric', 45, 1234), ('metric2', 55, 1234)])
 ````
 
+Learning? Use dryrun.
+----------------------
+
+With dryrun enabled the data will never get sent to a remote service, it will
+just print out what would have been sent.
+
+````python
+    >>> import graphitesend
+    >>> g = graphitesend.init(dryrun=True)
+    >>> g.send_list([('metric', 45, 1234), ('metric2', 55, 1234)])
+````
+
 Example: the init()
 ----------------
 
