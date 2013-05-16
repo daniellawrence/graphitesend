@@ -28,3 +28,9 @@ class TestDryRun(unittest.TestCase):
         with self.assertRaises(graphitesend.GraphiteSendException):
             g.connect()
 
+    def testBadGraphtieServer(self):
+        graphitesend.default_graphite_server = "BADGRAPHITESERVER"
+        g = graphitesend.init(prefix='', dryrun=True)
+        self.assertEqual(type(g).__name__, 'GraphiteClient')
+        dryrun_message = g.send('metric', 1, 1)
+        self.assertEqual(dryrun_message, "metric 1.000000 1\n")

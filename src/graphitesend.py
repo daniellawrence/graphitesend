@@ -38,17 +38,28 @@ class GraphiteClient(object):
     """
     def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
                  debug=False, group=None, system_name=None, suffix=None,
-                 lowercase_metric_names=False, connect_on_create=True):
+                 lowercase_metric_names=False, connect_on_create=True,
+                 dryrun=False):
         """ setup the connection to the graphite server and work out the
         prefix.
         This allows for very simple syntax when sending messages to the
         graphite server. """
+
 
         # If we are not passed a host, then use the graphite server defined
         # in the module.
         if not graphite_server:
             graphite_server = default_graphite_server
         self.addr = (graphite_server, graphite_port)
+
+
+        # If this is a dry run, then we do not want to configure a connection
+        # or try and make the connection once we create the object.
+        self.dryrun = dryrun
+        if self.dryrun:
+            self.addr = None
+            graphite_server = None
+            connect_on_create = False
 
         # Only connect to the graphite server and port if we tell you too.
         # This is mosty used for testing.
@@ -133,9 +144,6 @@ class GraphiteClient(object):
     def _send(self, message):
         """ Given a message send it to the graphite server. """
 
-        # An option to lowercase the entire message
-        if self.lowercase_metric_names:
-            message = message.lower()
 
         if not self.socket:
             raise GraphiteSendException(
@@ -167,6 +175,13 @@ class GraphiteClient(object):
         return "sent %d long message: %s" % \
             (len(message), "".join(message[:75]))
 
+    def _presend(self, message):
+        " complete any message alteration tasks before sending to the graphite server."
+        # An option to lowercase the entire message
+        if self.lowercase_metric_names:
+            message = message.lower()
+        return message
+
     def send(self, metric, value, timestamp=None):
         """ Format a single metric/value pair, and send it to the graphite
         server.
@@ -181,6 +196,11 @@ class GraphiteClient(object):
 
         message = "%s%s%s %f %d\n" % (self.prefix, metric, self.suffix,
                                       value, timestamp)
+
+        message = self. _presend(message)
+
+        if self.dryrun:
+            return message
 
         return self._send(message)
 
