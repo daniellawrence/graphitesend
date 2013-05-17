@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import time
 import graphitesend
-
+# comments
 g = graphitesend.init(group='loadavg_', suffix='min')
 
 while True:
