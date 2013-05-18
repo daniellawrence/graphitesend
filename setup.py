@@ -2,14 +2,14 @@
 from distutils.core import setup
 import os
 
-README="%s/README.md" % os.path.dirname(__file__)
+#README = "/".join([os.path.dirname(__file__), "README.md"])
 
-with open(README) as file:
-        long_description = file.read()
+#with open(README) as file:
+#        long_description = file.read()
 
 setup(
     name='graphitesend',
-    version='0.0.6b',
+    version='0.0.7',
     description='A simple interface for sending metrics to Graphite',
     author='Danny Lawrence',
     author_email='dannyla@linux.com',
@@ -17,5 +17,5 @@ setup(
     package_dir={'': 'src'},
     packages=[''],
     scripts=['bin/graphitesend'],
-    long_description=long_description
+    long_description="https://github.com/daniellawrence/graphitesend",
 )
