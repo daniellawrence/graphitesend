@@ -122,7 +122,6 @@ class GraphiteClient(object):
 
     def clean_metric_name(self, metric_name):
         """ Make sure the metric is free of control chars, spaces, tabs, etc.
-        TODO: Need to work out the best way to do the following:
         """
         metric_name = metric_name.replace('(', '_').replace(')', '')
         metric_name = metric_name.replace(' ', '_').replace('-', '_')
@@ -144,6 +143,8 @@ class GraphiteClient(object):
     def _send(self, message):
         """ Given a message send it to the graphite server. """
 
+        if self.dryrun:
+            return message
 
         if not self.socket:
             raise GraphiteSendException(

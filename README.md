@@ -12,10 +12,14 @@ Blog posts
 -----------
 [dansysadm.com](http://dansysadm.com/blog/sending_data_to_graphte_from_python.html)
 
+Example Scripts
+----------------
+The github repo of [graphitesend-examples(https://github.com/daniellawrence/graphitesend-examples)
+has lots of examples using graphitesend to grab data from your local linux system.
 
 
-Example
--------
+Usage Example
+--------------
 
 Very basic sending of a metric called metric with a value of 45
 
