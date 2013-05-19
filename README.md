@@ -14,7 +14,7 @@ Blog posts
 
 Example Scripts
 ----------------
-The github repo of [graphitesend-examples(https://github.com/daniellawrence/graphitesend-examples)
+The github repo of [graphitesend-examples](https://github.com/daniellawrence/graphitesend-examples)
 has lots of examples using graphitesend to grab data from your local linux system.
 
 
