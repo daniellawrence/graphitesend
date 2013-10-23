@@ -1,12 +1,18 @@
 graphitesend
 ============
 
+.. image:: https://api.travis-ci.org/daniellawrence/graphitesend.png
+   :target: https://travis-ci.org/daniellawrence/graphitesend
+
+.. image:: https://pypip.in/d/grphitesend/badge.png
+   :target: https://crate.io/packages/grphitesend
+
+.. image:: https://pypip.in/v/grphitesend/badge.png
+   :target: https://crate.io/packages/grphitesend
+
 Easy python bindings to write to Carbon ( Re-write of carbonclient).
 
 
-Build status
--------------
-[![Build Status](https://travis-ci.org/daniellawrence/graphitesend.png)](https://travis-ci.org/daniellawrence/graphitesend)
 
 Blog posts
 -----------
