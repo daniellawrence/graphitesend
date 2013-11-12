@@ -13,7 +13,7 @@ __version__ = "0.0.7"
 default_graphite_server = 'graphite'
 default_graphite_plaintext_port = 2003
 default_graphite_pickle_port = 2004
-default_graphite_event_port = 2004
+default_graphite_event_port = 80
 
 
 class GraphiteSendException(Exception):
@@ -381,10 +381,9 @@ class GraphiteEventClient(GraphiteClient):
         if value:
                 event_payload['data'] = value
 
-
-        
-
         print event_payload
+        post_response = requests.post(self.remote_uri, data=event_payload)
+        print post_response
         
 
 
