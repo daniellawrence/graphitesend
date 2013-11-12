@@ -1,4 +1,4 @@
-graphitesend
+graphitesend with EVENTS!
 ============
 
 [![Build Status](https://travis-ci.org/daniellawrence/graphitesend.png)](https://travis-ci.org/daniellawrence/graphitesend)
