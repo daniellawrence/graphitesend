@@ -335,6 +335,7 @@ class GraphitePickleClient(GraphiteClient):
         return "sent %d long pickled message: %s" % len(message)
 
 class GraphiteEventClient(GraphiteClient):
+
     def __init__(self, graphite_server=None, graphite_port=None,
                  debug=False, metic=None, lowercase_metric_names=False, 
                  tags=None, dryrun=False):
@@ -353,10 +354,30 @@ class GraphiteEventClient(GraphiteClient):
         self.remote_uri = "%s://%s:%s/events" % \
                           (uri_scheme, graphite_server, graphite_port)
 
+    def send_list(self, data, tags=None, timestamp=None):
+        "Send a list of events to the remote graphit server."
+
+        for event in data:
+            if isinstance(tags, str) or isinstance(tags, unicode):
+                self.send(metric=event, tags=None, timestamp=None)
+            if isinstance(tags, dict):
+                event_payload = {
+                    'tags': tags,
+                    'timestamp': timestamp
+                    }
+                if 'tags' in event:
+                    event_payload['tags'] = tags
+                if 'tmestamp in event':
+                    event_payload['timestamp'] = timestmap
+
+                event_payload['metric'] = event['metric']
+                self.send(**event_payload)
+                    
+             
+            
+
     def send(self, metric, value=None, tags=None, timestamp=None):
-        """ Format a single metric/value pair, and send it to the graphite
-        server.
-        """
+        "Send a single event to the remote graphite server."
 
         event_payload = {
             'what': metric
@@ -384,7 +405,7 @@ class GraphiteEventClient(GraphiteClient):
         print event_payload
         post_response = requests.post(self.remote_uri, data=event_payload)
         print post_response
-        
+
 
 
 def init(init_type='plaintext_tcp', *args, **kwargs):
