@@ -5,12 +5,15 @@ import socket
 import os
 import pickle
 import struct
+import requests
+import simplejson
 _module_instance = None
 __version__ = "0.0.7"
 
 default_graphite_server = 'graphite'
 default_graphite_plaintext_port = 2003
 default_graphite_pickle_port = 2004
+default_graphite_event_port = 2004
 
 
 class GraphiteSendException(Exception):
@@ -331,6 +334,59 @@ class GraphitePickleClient(GraphiteClient):
 
         return "sent %d long pickled message: %s" % len(message)
 
+class GraphiteEventClient(GraphiteClient):
+    def __init__(self, graphite_server=None, graphite_port=None,
+                 debug=False, metic=None, lowercase_metric_names=False, 
+                 tags=None, dryrun=False):
+
+        # If we are not passed a host, then use the graphite server defined
+        # in the module.
+        if not graphite_server:
+            graphite_server = default_graphite_server
+        if not graphite_port:
+            graphite_port = default_graphite_event_port
+
+        uri_scheme = 'http'
+        if graphite_port in (443, ):
+            uri_scheme = 'https'
+            
+        self.remote_uri = "%s://%s:%s/events" % \
+                          (uri_scheme, graphite_server, graphite_port)
+
+    def send(self, metric, value=None, tags=None, timestamp=None):
+        """ Format a single metric/value pair, and send it to the graphite
+        server.
+        """
+
+        event_payload = {
+            'what': metric
+        }
+
+        # If we have a timestmap, validate and pass it on
+        if timestamp is not None:
+            timestamp = int(time.time())
+            event_payload['when'] = timestamp
+
+        # Tags are important, lets validate them
+        if tags:
+            if isinstance(tags, str) or isinstance(tags, unicode):
+                if ',' in tags:
+                    tags = tags.split(',')
+                else:
+                    tags = tags.split()
+
+            if isinstance(tags, []):
+                event_payload['tags'] = tags
+
+        if value:
+                event_payload['data'] = value
+
+
+        
+
+        print event_payload
+        
+
 
 def init(init_type='plaintext_tcp', *args, **kwargs):
     """ Create the module instance of the GraphiteClient. """
@@ -338,7 +394,7 @@ def init(init_type='plaintext_tcp', *args, **kwargs):
     reset()
 
     validate_init_types = ['plaintext_tcp', 'plaintext', 'pickle_tcp',
-                           'pickle', 'plain']
+                           'pickle', 'plain', 'event']
 
     if init_type not in validate_init_types:
         raise GraphiteSendException(
@@ -353,6 +409,10 @@ def init(init_type='plaintext_tcp', *args, **kwargs):
     # server.
     if init_type in ['pickle_tcp', 'picke']:
         _module_instance = GraphiteClient(*args, **kwargs)
+
+    # Use the Event system
+    if init_type in ('event',):
+        _module_instance = GraphiteEventClient(*args, **kwargs)
 
     return _module_instance
 
@@ -410,17 +470,26 @@ def cli():
 
     parser = argparse.ArgumentParser(description='Send data to graphite')
 
+    # Is this an event?
+    parser.add_argument('--event', '-e', dest='event', action='store_true', 
+                        help='Store in graphite event system, not timeseries data')
     # Core of the application is to accept a metric and a value.
     parser.add_argument('metric', metavar='metric', type=str,
                         help='name.of.metric')
-    parser.add_argument('value', metavar='value', type=int,
+    parser.add_argument('value', metavar='value', type=str,
                         help='value of metric as int')
 
     args = parser.parse_args()
+    is_event = args.event
     metric = args.metric
     value = args.value
 
-    graphitesend_instance = init()
+    init_type='plaintext_tcp'
+    if is_event:
+        init_type='event'
+        
+
+    graphitesend_instance = init(init_type=init_type)
     graphitesend_instance.send(metric, value)
 
 if __name__ == '__main__':
