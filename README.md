@@ -1,7 +1,7 @@
 graphitesend
 ============
 
-[![Build Status](https://travis-ci.org/daniellawrence/graphitesend.png)](https://travis-ci.org/daniellawrence/graphitesend)
+[![Build Status](https://travis-ci.org/daniellawrence/graphitesend.png?banch=master)](https://travis-ci.org/daniellawrence/graphitesend)
 [![Pypi Downloads](https://pypip.in/d/graphitesend/badge.png)](https://crate.io/packages/graphitesend)
 [![Pypi Version](https://pypip.in/v/graphitesend/badge.png)](https://crate.io/packages/graphitesend)
 
