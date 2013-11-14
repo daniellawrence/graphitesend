@@ -9,6 +9,11 @@ Easy python bindings to write to Carbon ( Re-write of carbonclient).
 
 
 
+Read The Docs
+-----------
+[graphitesend.rtfd.org](http://graphitesend.readthedocs.org/en/latest/)
+
+
 Blog posts
 -----------
 [dansysadm.com](http://dansysadm.com/blog/sending_data_to_graphte_from_python.html)
