@@ -6,9 +6,9 @@ import os
 import pickle
 import struct
 import requests
-import simplejson
+import json
 _module_instance = None
-__version__ = "0.0.7"
+__version__ = "0.2.0"
 
 default_graphite_server = 'graphite'
 default_graphite_plaintext_port = 2003
@@ -18,6 +18,18 @@ default_graphite_event_port = 80
 
 class GraphiteSendException(Exception):
     pass
+
+
+def split_tags(tags):
+    "split up tags from a string into a list"
+
+    if isinstance(tags, str) or isinstance(tags, unicode):
+        if ',' in tags:
+            tags = tags.split(',')
+        else:
+            tags = tags.split()
+            
+    return tags
 
 
 class GraphiteClient(object):
@@ -336,6 +348,7 @@ class GraphitePickleClient(GraphiteClient):
 
 class GraphiteEventClient(GraphiteClient):
 
+
     def __init__(self, graphite_server=None, graphite_port=None,
                  debug=False, metic=None, lowercase_metric_names=False, 
                  tags=None, dryrun=False):
@@ -347,64 +360,88 @@ class GraphiteEventClient(GraphiteClient):
         if not graphite_port:
             graphite_port = default_graphite_event_port
 
+        # Enable debug messages
+        self.debug = debug
+
         uri_scheme = 'http'
         if graphite_port in (443, ):
             uri_scheme = 'https'
             
-        self.remote_uri = "%s://%s:%s/events" % \
+        self.remote_uri = "%s://%s:%s/events/" % \
                           (uri_scheme, graphite_server, graphite_port)
 
     def send_list(self, data, tags=None, timestamp=None):
         "Send a list of events to the remote graphit server."
 
         for event in data:
-            if isinstance(tags, str) or isinstance(tags, unicode):
+            if isinstance(event, str) or isinstance(tags, unicode):
                 self.send(metric=event, tags=None, timestamp=None)
-            if isinstance(tags, dict):
+            if isinstance(event, dict):
                 event_payload = {
                     'tags': tags,
                     'timestamp': timestamp
                     }
                 if 'tags' in event:
-                    event_payload['tags'] = tags
-                if 'tmestamp in event':
+                    event_payload['tags'] = split_tags(event['tags']) + split_tags(tags)
+                if 'tmestamp' in event:
                     event_payload['timestamp'] = timestmap
 
                 event_payload['metric'] = event['metric']
                 self.send(**event_payload)
-                    
-             
+                
+    def send_dict(self, data, tags=None, timestamp=None):
+        "send a dict of key, data to the remote graphite server."
+
+
+        for event_name, event_data in data.items():
+            if isinstance(event_data, str) or isinstance(event_data, unicode):
+                self.send(metric=event_name, value=event_data, tags=tags, timestamp=timestamp)
+                continue
+            if isinstance(event_data, dict):
+                event_payload = {
+                    'tags': tags,
+                    }
+
+                if timestamp:
+                    event_payload['timestamp'] = timestamp
+
+                if 'tags' in event_data:
+                    event_payload['tags'] = split_tags(event_data['tags']) + split_tags(tags)
+                if 'tmestamp' in event_data:
+                    event_payload['timestamp'] = timestmap
+
+                if 'value' in event_data:
+                    event_payload['value'] = event_data['value']
+
+                event_payload['metric'] = event_name
+
+                self.send(**event_payload)
+                continue
+            raise NotImplemented("Unknown type to process")
             
 
     def send(self, metric, value=None, tags=None, timestamp=None):
         "Send a single event to the remote graphite server."
 
         event_payload = {
-            'what': metric
+            "what": metric
         }
 
         # If we have a timestmap, validate and pass it on
         if timestamp is not None:
             timestamp = int(time.time())
-            event_payload['when'] = timestamp
+            event_payload["when"] = timestamp
 
-        # Tags are important, lets validate them
+        # For django-taggit we will be very clear to keep the tags seperate
         if tags:
-            if isinstance(tags, str) or isinstance(tags, unicode):
-                if ',' in tags:
-                    tags = tags.split(',')
-                else:
-                    tags = tags.split()
-
-            if isinstance(tags, []):
-                event_payload['tags'] = tags
+            event_payload["tags"] = " , ".join(split_tags(tags))
 
         if value:
-                event_payload['data'] = value
+            event_payload["data"] = value
 
-        print event_payload
+        event_payload = json.dumps(event_payload)
         post_response = requests.post(self.remote_uri, data=event_payload)
-        print post_response
+        return post_response.status_code
 
 
 
