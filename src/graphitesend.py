@@ -33,32 +33,61 @@ def split_tags(tags):
 
 
 class GraphiteClient(object):
-    """ Graphite Client that will setup a TCP connection to your graphite
-    instance on port 2003. It will then send any metrics that you give it via
+    """
+    Graphite Client that will setup a TCP connection to graphite.
+
+    :param prefix: string added to the start of all metrics
+    :type prefix: Default: "systems."
+    :param graphite_server: hostname or ip address of graphite server
+    :type graphite_server: Default: graphite
+    :param graphite_port: TCP port we will connect to
+    :type graphite_port: Default: 2003
+    :param debug: Toggle debug messages
+    :type debug: True or False
+    :param group: string added to after prefix and before system_name
+    :param system_name: FDQN of the system generating the metrics
+    :type system_name: Default: current FDQN
+    :param suffix: string added to the end of all metrics
+    :param lowercase_metric_names: Toggle the .lower() of all metric names
+    :param dryrun: Toggle if it will really send metrics or just print them
+    :type dryrun: True or False
+
+    It will then send any metrics that you give it via
     the .send() or .send_dict().
+
     You can also take advantage of the prefix, group and system_name options
     that allow you to setup default locations where your whisper files will
     be kept.
     eg.
     ( where linuxserver is the name of the localhost)
-    >>> init().prefix
-    systems.linuxserver.
-    >>> init(system_name='remote_host').prefix
-    systems.thumper.
-    >>> init(group='cpu').prefix
-    systems.linuxserver.cpu.
-    >>> init(prefix='apache').prefix
-    apache.
+
+    .. code-block:: python
+
+      >>> init().prefix
+      systems.linuxserver.
+
+      >>> init(system_name='remote_host').prefix
+      systems.thumper.
+
+      >>> init(group='cpu').prefix
+      systems.linuxserver.cpu.
+
+      >>> init(prefix='apache').prefix
+      apache.
 
     """
     def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
                  debug=False, group=None, system_name=None, suffix=None,
                  lowercase_metric_names=False, connect_on_create=True,
                  dryrun=False):
-        """ setup the connection to the graphite server and work out the
+        """ 
+        setup the connection to the graphite server and work out the
         prefix.
+
         This allows for very simple syntax when sending messages to the
-        graphite server. """
+        graphite server.
+
+        """
 
 
         # If we are not passed a host, then use the graphite server defined
@@ -114,7 +143,9 @@ class GraphiteClient(object):
         self.prefix = prefix
 
     def connect(self):
-        """ Make a TCP connection to the graphite server on port self.port """
+        """
+        Make a TCP connection to the graphite server on port self.port
+        """
         timeout_in_seconds = 2
         local_socket = socket.socket()
         local_socket.settimeout(timeout_in_seconds)
@@ -136,14 +167,18 @@ class GraphiteClient(object):
         return local_socket
 
     def clean_metric_name(self, metric_name):
-        """ Make sure the metric is free of control chars, spaces, tabs, etc.
+        """
+        Make sure the metric is free of control chars, spaces, tabs, etc.
+        
         """
         metric_name = metric_name.replace('(', '_').replace(')', '')
         metric_name = metric_name.replace(' ', '_').replace('-', '_')
         return metric_name
 
     def disconnect(self):
-        """ close the TCP connection. """
+        """
+        Close the TCP connection with the graphite server.
+        """
         try:
             self.socket.shutdown(1)
 
@@ -156,7 +191,9 @@ class GraphiteClient(object):
             self.socket = None
 
     def _send(self, message):
-        """ Given a message send it to the graphite server. """
+        """ 
+        Given a message send it to the graphite server.
+        """
 
         if self.dryrun:
             return message
@@ -192,15 +229,36 @@ class GraphiteClient(object):
             (len(message), "".join(message[:75]))
 
     def _presend(self, message):
-        " complete any message alteration tasks before sending to the graphite server."
+        """
+        Complete any message alteration tasks before sending to the graphite server.
+        """
         # An option to lowercase the entire message
         if self.lowercase_metric_names:
             message = message.lower()
         return message
 
     def send(self, metric, value, timestamp=None):
-        """ Format a single metric/value pair, and send it to the graphite
+        """
+        Format a single metric/value pair, and send it to the graphite
         server.
+
+        :param metric: name of the metric
+        :type prefix: string 
+        :param value: value of the metric
+        :type prefix: float or int 
+        :param timestmap: epoch time of the event
+        :type prefix: float or int 
+
+        .. code-block:: python
+
+          >>> g = init()
+          >>> g.send("metric", 54)
+        
+        .. code-block:: python
+
+          >>> g = init()
+          >>> g.send(metric="metricname", value=73)
+
         """
         if timestamp is None:
             timestamp = int(time.time())
@@ -221,8 +279,20 @@ class GraphiteClient(object):
         return self._send(message)
 
     def send_dict(self, data, timestamp=None):
-        """ Format a dict of metric/values pairs, and send them all to the
+        """ 
+        Format a dict of metric/values pairs, and send them all to the
         graphite server.
+
+        :param data: key,value pair of metric name and metric value
+        :type prefix: dict 
+        :param timestmap: epoch time of the event
+        :type prefix: float or int 
+
+        .. code-block:: python
+
+          >>> g = init()
+          >>> g.send_dict({'metric1': 54, 'metric2': 43, 'metricN': 999})
+
         """
         if timestamp is None:
             timestamp = int(time.time())
@@ -242,8 +312,21 @@ class GraphiteClient(object):
         return self._send(message)
 
     def send_list(self, data, timestamp=None):
-        """ Format a list of set's of (metric, value) pairs, and send them all
+        """ 
+
+        Format a list of set's of (metric, value) pairs, and send them all
         to the graphite server.
+
+        :param data: list of key,value pairs of metric name and metric value
+        :type prefix: list 
+        :param timestmap: epoch time of the event
+        :type prefix: float or int 
+
+        .. code-block:: python
+
+          >>> g = init()
+          >>> g.send_list([('metric1', 54), ('metric2', 43, 1384418995), ('metricN', 999)])
+
         """
         if timestamp is None:
             timestamp = int(time.time())
@@ -446,7 +529,9 @@ class GraphiteEventClient(GraphiteClient):
 
 
 def init(init_type='plaintext_tcp', *args, **kwargs):
-    """ Create the module instance of the GraphiteClient. """
+    """
+    Create the module instance of the GraphiteClient.
+    """
     global _module_instance
     reset()
 
