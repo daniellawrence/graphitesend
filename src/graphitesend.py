@@ -34,6 +34,8 @@ class GraphiteClient(object):
     :type system_name: Default: current FDQN
     :param suffix: string added to the end of all metrics
     :param lowercase_metric_names: Toggle the .lower() of all metric names
+    :param fqdn_squash: Change host.example.com to host_example_com
+    :type fqdn_squash: True or False
     :param dryrun: Toggle if it will really send metrics or just return them
     :type dryrun: True or False
 
@@ -64,6 +66,7 @@ class GraphiteClient(object):
     def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
                  debug=False, group=None, system_name=None, suffix=None,
                  lowercase_metric_names=False, connect_on_create=True,
+                 fqdn_squash=False,
                  dryrun=False):
         """ 
         setup the connection to the graphite server and work out the
@@ -106,7 +109,10 @@ class GraphiteClient(object):
             tmp_prefix = "%s." % prefix
 
         if system_name is None:
-            tmp_sname = '%s.' % os.uname()[1]
+            if fqdn_squash:
+                tmp_sname = '%s.' % os.uname()[1].replace('.','_')
+            else:
+                tmp_sname = '%s.' % os.uname()[1]
         elif system_name == '':
             tmp_sname = ''
         else:

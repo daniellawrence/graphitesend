@@ -50,6 +50,12 @@ class TestAll(unittest.TestCase):
         custom_prefix = g.addr[0]
         self.assertEqual(custom_prefix, 'localhost')
 
+    def test_fqdn_squash(self):
+        g = graphitesend.init(fqdn_squash=True)
+        custom_prefix = g.prefix
+        expected_results='systems.%s.' % self.hostname.replace('.','_')
+        self.assertEqual(custom_prefix, expected_results)
+
     def test_noprefix(self):
         g = graphitesend.init()
         custom_prefix = g.prefix
