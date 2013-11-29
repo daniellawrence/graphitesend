@@ -52,7 +52,7 @@ class GraphiteClient(object):
       systems.linuxserver.
 
       >>> init(system_name='remote_host').prefix
-      systems.thumper.
+      systems.remote_host.
 
       >>> init(group='cpu').prefix
       systems.linuxserver.cpu.
