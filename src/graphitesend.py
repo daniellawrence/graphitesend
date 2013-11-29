@@ -29,12 +29,12 @@ class GraphiteClient(object):
     :type graphite_port: Default: 2003
     :param debug: Toggle debug messages
     :type debug: True or False
-    :param group: string added to after prefix and before system_name
+    :param group: string added to after system_name and before metric name
     :param system_name: FDQN of the system generating the metrics
     :type system_name: Default: current FDQN
     :param suffix: string added to the end of all metrics
     :param lowercase_metric_names: Toggle the .lower() of all metric names
-    :param dryrun: Toggle if it will really send metrics or just print them
+    :param dryrun: Toggle if it will really send metrics or just return them
     :type dryrun: True or False
 
     It will then send any metrics that you give it via
@@ -74,13 +74,11 @@ class GraphiteClient(object):
 
         """
 
-
         # If we are not passed a host, then use the graphite server defined
         # in the module.
         if not graphite_server:
             graphite_server = default_graphite_server
         self.addr = (graphite_server, graphite_port)
-
 
         # If this is a dry run, then we do not want to configure a connection
         # or try and make the connection once we create the object.
@@ -100,17 +98,26 @@ class GraphiteClient(object):
 
         self.lowercase_metric_names = lowercase_metric_names
 
-        if system_name is None:
-            system_name = os.uname()[1]
-
         if prefix is None:
-            prefix = "systems.%(system_name)s" % locals()
+            tmp_prefix = 'systems.'
+        elif prefix == '':
+            tmp_prefix = ''
+        else:
+            tmp_prefix = "%s." % prefix
 
-        if prefix:
-            prefix = prefix + "."
+        if system_name is None:
+            tmp_sname = '%s.' % os.uname()[1]
+        elif system_name == '':
+            tmp_sname = ''
+        else:
+            tmp_sname = '%s.' % system_name
 
-        if group:
-            prefix = prefix + "." + group
+        if group is None:
+            tmp_group = ''
+        else:
+            tmp_group='%s.' % group
+
+        prefix="%s%s%s" % (tmp_prefix, tmp_sname, tmp_group)
 
         # remove double dots
         if '..' in prefix:
