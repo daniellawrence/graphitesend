@@ -15,6 +15,8 @@ class TestAll(unittest.TestCase):
         # running on one of my (dannyla@linux.com) systems.
         # graphitesend.default_graphite_server = 'graphite.dansysadm.com'
         graphitesend.default_graphite_server = 'localhost'
+        import os
+        self.hostname = os.uname()[1]
 
     def tearDown(self):
         """ reset graphitesend """
@@ -48,6 +50,16 @@ class TestAll(unittest.TestCase):
         custom_prefix = g.addr[0]
         self.assertEqual(custom_prefix, 'localhost')
 
+    def test_noprefix(self):
+        g = graphitesend.init()
+        custom_prefix = g.prefix
+        self.assertEqual(custom_prefix, 'systems.%s.' % self.hostname)
+
+    def test_system_name(self):
+        g = graphitesend.init(system_name='remote_host')
+        custom_prefix = g.prefix
+        self.assertEqual(custom_prefix, 'systems.remote_host.')
+
     def test_prefix(self):
         g = graphitesend.init(prefix='custom_prefix')
         custom_prefix = g.prefix
@@ -63,6 +75,16 @@ class TestAll(unittest.TestCase):
         custom_prefix = g.prefix
         self.assertEqual(custom_prefix, 'custom_prefix.')
 
+    def test_set_prefix_group(self):
+        g = graphitesend.init(prefix='prefix', group='group')
+        custom_prefix = g.prefix
+        self.assertEqual(custom_prefix, 'prefix.%s.group.' % self.hostname)
+
+    def test_set_prefix_group_system(self):
+        g = graphitesend.init(prefix='prefix', system_name='system', group='group')
+        custom_prefix = g.prefix
+        self.assertEqual(custom_prefix, 'prefix.system.group.')
+
     def test_set_suffix(self):
         g = graphitesend.init(suffix='custom_suffix')
         custom_suffix = g.suffix
@@ -70,17 +92,13 @@ class TestAll(unittest.TestCase):
 
     def test_set_group_prefix(self):
         g = graphitesend.init(group='custom_group')
-        import os
-        hostname = os.uname()[1]
-        expected_prefix = "systems.%(hostname)s.custom_group" % locals()
+        expected_prefix = "systems.%s.custom_group" % self.hostname
         custom_prefix = g.prefix
         self.assertEqual(custom_prefix, expected_prefix)
 
     def test_default_prefix(self):
         g = graphitesend.init()
-        import os
-        hostname = os.uname()[1]
-        expected_prefix = "systems.%(hostname)s." % locals()
+        expected_prefix = "systems.%s." % self.hostname
         custom_prefix = g.prefix
         self.assertEqual(custom_prefix, expected_prefix)
 
