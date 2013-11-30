@@ -2,6 +2,7 @@
 
 import unittest
 import graphitesend
+import os
 
 
 class TestDryRun(unittest.TestCase):
@@ -12,6 +13,7 @@ class TestDryRun(unittest.TestCase):
         # Drop any connections or modules that have been setup from other tests
         graphitesend.reset()
         graphitesend.default_graphite_server = 'localhost'
+        self.hostname = os.uname()[1]
 
     def testEmptyAddr(self):
         g = graphitesend.init(prefix='', dryrun=True)
@@ -21,7 +23,7 @@ class TestDryRun(unittest.TestCase):
         g = graphitesend.init(prefix='', dryrun=True)
         self.assertEqual(type(g).__name__, 'GraphiteClient')
         dryrun_message = g.send('metric', 1, 1)
-        self.assertEqual(dryrun_message, "metric 1.000000 1\n")
+        self.assertEqual(dryrun_message, "%s.metric 1.000000 1\n" % self.hostname)
 
     def testDryrunConnectFailure(self):
         g = graphitesend.init(prefix='', dryrun=True)
@@ -34,4 +36,4 @@ class TestDryRun(unittest.TestCase):
         g = graphitesend.init(prefix='', dryrun=True)
         self.assertEqual(type(g).__name__, 'GraphiteClient')
         dryrun_message = g.send('metric', 1, 1)
-        self.assertEqual(dryrun_message, "metric 1.000000 1\n")
+        self.assertEqual(dryrun_message, "%s.metric 1.000000 1\n" % self.hostname)
