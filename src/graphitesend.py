@@ -29,12 +29,14 @@ class GraphiteClient(object):
     :type graphite_port: Default: 2003
     :param debug: Toggle debug messages
     :type debug: True or False
-    :param group: string added to after prefix and before system_name
+    :param group: string added to after system_name and before metric name
     :param system_name: FDQN of the system generating the metrics
     :type system_name: Default: current FDQN
     :param suffix: string added to the end of all metrics
     :param lowercase_metric_names: Toggle the .lower() of all metric names
-    :param dryrun: Toggle if it will really send metrics or just print them
+    :param fqdn_squash: Change host.example.com to host_example_com
+    :type fqdn_squash: True or False
+    :param dryrun: Toggle if it will really send metrics or just return them
     :type dryrun: True or False
 
     It will then send any metrics that you give it via
@@ -52,7 +54,7 @@ class GraphiteClient(object):
       systems.linuxserver.
 
       >>> init(system_name='remote_host').prefix
-      systems.thumper.
+      systems.remote_host.
 
       >>> init(group='cpu').prefix
       systems.linuxserver.cpu.
@@ -64,6 +66,7 @@ class GraphiteClient(object):
     def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
                  debug=False, group=None, system_name=None, suffix=None,
                  lowercase_metric_names=False, connect_on_create=True,
+                 fqdn_squash=False,
                  dryrun=False):
         """ 
         setup the connection to the graphite server and work out the
@@ -74,13 +77,11 @@ class GraphiteClient(object):
 
         """
 
-
         # If we are not passed a host, then use the graphite server defined
         # in the module.
         if not graphite_server:
             graphite_server = default_graphite_server
         self.addr = (graphite_server, graphite_port)
-
 
         # If this is a dry run, then we do not want to configure a connection
         # or try and make the connection once we create the object.
@@ -100,17 +101,29 @@ class GraphiteClient(object):
 
         self.lowercase_metric_names = lowercase_metric_names
 
-        if system_name is None:
-            system_name = os.uname()[1]
-
         if prefix is None:
-            prefix = "systems.%(system_name)s" % locals()
+            tmp_prefix = 'systems.'
+        elif prefix == '':
+            tmp_prefix = ''
+        else:
+            tmp_prefix = "%s." % prefix
 
-        if prefix:
-            prefix = prefix + "."
+        if system_name is None:
+            if fqdn_squash:
+                tmp_sname = '%s.' % os.uname()[1].replace('.','_')
+            else:
+                tmp_sname = '%s.' % os.uname()[1]
+        elif system_name == '':
+            tmp_sname = ''
+        else:
+            tmp_sname = '%s.' % system_name
 
-        if group:
-            prefix = prefix + "." + group
+        if group is None:
+            tmp_group = ''
+        else:
+            tmp_group='%s.' % group
+
+        prefix="%s%s%s" % (tmp_prefix, tmp_sname, tmp_group)
 
         # remove double dots
         if '..' in prefix:

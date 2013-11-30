@@ -15,6 +15,8 @@ class TestAll(unittest.TestCase):
         # running on one of my (dannyla@linux.com) systems.
         # graphitesend.default_graphite_server = 'graphite.dansysadm.com'
         graphitesend.default_graphite_server = 'localhost'
+        import os
+        self.hostname = os.uname()[1]
 
     def tearDown(self):
         """ reset graphitesend """
@@ -48,20 +50,61 @@ class TestAll(unittest.TestCase):
         custom_prefix = g.addr[0]
         self.assertEqual(custom_prefix, 'localhost')
 
+    def test_fqdn_squash(self):
+        g = graphitesend.init(fqdn_squash=True)
+        custom_prefix = g.prefix
+        expected_results='systems.%s.' % self.hostname.replace('.','_')
+        self.assertEqual(custom_prefix, expected_results)
+
+    def test_noprefix(self):
+        g = graphitesend.init()
+        custom_prefix = g.prefix
+        self.assertEqual(custom_prefix, 'systems.%s.' % self.hostname)
+
+    def test_system_name(self):
+        g = graphitesend.init(system_name='remote_host')
+        custom_prefix = g.prefix
+        expected_prefix = 'systems.remote_host.'
+        self.assertEqual(custom_prefix, expected_prefix)
+
+    def test_empty_system_name(self):
+        g = graphitesend.init(system_name='')
+        custom_prefix = g.prefix
+        expected_prefix = 'systems.'
+        self.assertEqual(custom_prefix, expected_prefix)
+
+    def test_no_system_name(self):
+        g = graphitesend.init(group='foo')
+        custom_prefix = g.prefix
+        expected_prefix = 'systems.%s.foo.' % self.hostname
+        self.assertEqual(custom_prefix, expected_prefix)
+
     def test_prefix(self):
         g = graphitesend.init(prefix='custom_prefix')
         custom_prefix = g.prefix
-        self.assertEqual(custom_prefix, 'custom_prefix.')
+        self.assertEqual(custom_prefix, 'custom_prefix.%s.' % self.hostname)
 
     def test_prefix_double_dot(self):
         g = graphitesend.init(prefix='custom_prefix.')
         custom_prefix = g.prefix
-        self.assertEqual(custom_prefix, 'custom_prefix.')
+        self.assertEqual(custom_prefix, 'custom_prefix.%s.' % self.hostname)
 
     def test_prefix_remove_spaces(self):
         g = graphitesend.init(prefix='custom prefix')
         custom_prefix = g.prefix
-        self.assertEqual(custom_prefix, 'custom_prefix.')
+        self.assertEqual(custom_prefix, 'custom_prefix.%s.' % self.hostname)
+
+    def test_set_prefix_group(self):
+        g = graphitesend.init(prefix='prefix', group='group')
+        custom_prefix = g.prefix
+        expected_prefix='prefix.%s.group.' % self.hostname
+        self.assertEqual(custom_prefix, expected_prefix)
+
+    def test_set_prefix_group_system(self):
+        g = graphitesend.init(prefix='prefix', system_name='system', group='group')
+        custom_prefix = g.prefix
+        expected_prefix='prefix.system.group.'
+        self.assertEqual(custom_prefix, expected_prefix)
 
     def test_set_suffix(self):
         g = graphitesend.init(suffix='custom_suffix')
@@ -70,17 +113,13 @@ class TestAll(unittest.TestCase):
 
     def test_set_group_prefix(self):
         g = graphitesend.init(group='custom_group')
-        import os
-        hostname = os.uname()[1]
-        expected_prefix = "systems.%(hostname)s.custom_group" % locals()
+        expected_prefix = "systems.%s.custom_group." % self.hostname
         custom_prefix = g.prefix
         self.assertEqual(custom_prefix, expected_prefix)
 
     def test_default_prefix(self):
         g = graphitesend.init()
-        import os
-        hostname = os.uname()[1]
-        expected_prefix = "systems.%(hostname)s." % locals()
+        expected_prefix = "systems.%s." % self.hostname
         custom_prefix = g.prefix
         self.assertEqual(custom_prefix, expected_prefix)
 
@@ -120,9 +159,9 @@ class TestAll(unittest.TestCase):
             graphite_instance.send('metric', 0)
 
     def test_send_list_metric_value(self):
-        graphite_instance = graphitesend.init(prefix='test')
+        graphite_instance = graphitesend.init(prefix='test', system_name='local')
         response = graphite_instance.send_list([('metric', 1)])
-        self.assertEqual('sent 32 long message: test.metric' in response, True)
+        self.assertEqual('long message: test.local.metric 1' in response, True)
         self.assertEqual('1.00000' in response, True)
 
     def test_send_list_metric_value_single_timestamp(self):
@@ -145,7 +184,7 @@ class TestAll(unittest.TestCase):
         self.assertEqual(response.endswith('1\n'), True)
 
     def test_send_list_metric_value_timestamp_2(self):
-        graphite_instance = graphitesend.init(prefix='test')
+        graphite_instance = graphitesend.init(prefix='test', system_name='')
         # Make sure it can handle custom timestamp
         response = graphite_instance.send_list(
             [('metric', 1, 1), ('metric', 1, 2)])
@@ -154,7 +193,7 @@ class TestAll(unittest.TestCase):
         self.assertEqual('test.metric 1.000000 2' in response, True)
 
     def test_send_list_metric_value_timestamp_3(self):
-        graphite_instance = graphitesend.init(prefix='test')
+        graphite_instance = graphitesend.init(prefix='test', system_name='')
         # Make sure it can handle custom timestamp, fill in the missing with
         # the current time.
         response = graphite_instance.send_list(
@@ -169,7 +208,7 @@ class TestAll(unittest.TestCase):
         self.assertEqual('test.metric 2.000000 2' not in response, True)
 
     def test_send_list_metric_value_timestamp_default(self):
-        graphite_instance = graphitesend.init(prefix='test')
+        graphite_instance = graphitesend.init(prefix='test', system_name='bar')
         # Make sure it can handle custom timestamp, fill in the missing with
         # the current time.
         response = graphite_instance.send_list(
@@ -180,11 +219,11 @@ class TestAll(unittest.TestCase):
             timestamp='4'
         )
         # self.assertEqual('sent 69 long message:' in response, True)
-        self.assertEqual('test.metric 1.000000 1' in response, True)
-        self.assertEqual('test.metric 2.000000 4' in response, True)
+        self.assertEqual('test.bar.metric 1.000000 1' in response, True)
+        self.assertEqual('test.bar.metric 2.000000 4' in response, True)
 
     def test_send_list_metric_value_timestamp_default_2(self):
-        graphite_instance = graphitesend.init(prefix='test')
+        graphite_instance = graphitesend.init(prefix='test', system_name='foo')
         # Make sure it can handle custom timestamp, fill in the missing with
         # the current time.
         response = graphite_instance.send_list(
@@ -195,8 +234,8 @@ class TestAll(unittest.TestCase):
             timestamp='4'
         )
         # self.assertEqual('sent 69 long message:' in response, True)
-        self.assertEqual('test.metric 1.000000 4' in response, True)
-        self.assertEqual('test.metric 2.000000 2' in response, True)
+        self.assertEqual('test.foo.metric 1.000000 4' in response, True)
+        self.assertEqual('test.foo.metric 2.000000 2' in response, True)
 
 
 if __name__ == '__main__':

@@ -132,6 +132,13 @@ set a metric prefix using kwargs
 >>> print g.send('metric', 2)
 sent 34 long message: prefix.metric 2.000000 1365068929
 ````
+
+Squash any dots in the hostname
+````
+>>> g = graphitesend.init(fqdn_squash=True)
+>>> print g.send('metric', 3)
+sent 56 long message: systems.host_example_com.metric 2.00000 1365069029
+````
  
 view the default prefix, hardset systems. then followed by the name of the
 host that execute the send().
