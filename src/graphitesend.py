@@ -6,7 +6,7 @@ import os
 import pickle
 import struct
 _module_instance = None
-__version__ = "0.0.7"
+__version__ = "0.3.0"
 
 default_graphite_server = 'graphite'
 default_graphite_plaintext_port = 2003
