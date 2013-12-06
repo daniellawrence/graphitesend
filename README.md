@@ -68,6 +68,20 @@ Using a different prefix (other then system.hostname)
 
 The above would send the following metric to graphite
 
+    apache.rc.localhostname.404 4 epoch-time-stamp
+    apache.rc.localhostname.200 500 epoch-time-stamp
+    
+To get rid of `localhostname`, set another argument — `system_name`
+
+````python
+>>> import graphitesend
+>>> g = graphitesend.init(prefix='apache.rc', system_name='')
+>>> g.send('404', 4)
+>>> g.send('200', 500)
+````
+
+The above would send the following metric to graphite
+
     apache.rc.404 4 epoch-time-stamp
     apache.rc.200 500 epoch-time-stamp
 
