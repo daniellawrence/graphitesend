@@ -1,7 +1,7 @@
 
-============
-GraphiteSend
-============
+================
+GraphiteSend API
+================
 
 .. automodule:: graphitesend
   :members:
