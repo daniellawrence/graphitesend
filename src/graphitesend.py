@@ -171,6 +171,7 @@ class GraphiteClient(object):
         """
         metric_name = metric_name.replace('(', '_').replace(')', '')
         metric_name = metric_name.replace(' ', '_').replace('-', '_')
+        metric_name = metric_name.replace('/', '_').replace('\\', '_')
         return metric_name
 
     def disconnect(self):
@@ -266,6 +267,10 @@ class GraphiteClient(object):
         if type(value).__name__ in ['str', 'unicode']:
             value = float(value)
 
+        print "metric: '%s'" % metric
+        metric = self.clean_metric_name(metric)
+        print "metric: '%s'" % metric
+
         message = "%s%s%s %f %d\n" % (self.prefix, metric, self.suffix,
                                       value, timestamp)
 
@@ -302,6 +307,7 @@ class GraphiteClient(object):
         for metric, value in data.items():
             if type(value).__name__ in ['str', 'unicode']:
                 value = float(value)
+            metric = self.clean_metric_name(metric)
             tmp_message = "%s%s%s %f %d\n" % (self.prefix, metric,
                                               self.suffix, value, timestamp)
             metric_list.append(tmp_message)
@@ -349,6 +355,8 @@ class GraphiteClient(object):
             if type(value).__name__ in ['str', 'unicode']:
                 print "metric='%(metric)s'  value='%(value)s'" % locals()
                 value = float(value)
+
+            metric = self.clean_metric_name(metric)
 
             tmp_message = "%s%s%s %f %d\n" % (self.prefix, metric,
                                               self.suffix, value, metric_timestamp)

@@ -3,23 +3,43 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to graphitesend's documentation!
+
+========================================
+GraphiteSend
 ========================================
 
-Contents:
+About
+=====
+
+.. include:: intro.rst
+
+Installation
+============
+
+Stable releases of graphitesnd are best installed via ``pip`` or ``easy_install``.
+
+We recommend using the latest stable version of graphitesnd; releases are made often
+to prevent any large gaps in functionality between the latest stable release
+and the development version.
+
+However, if you want to live on the edge, you can pull down the source code
+from our Git repository, or fork us on Github.
+
+
+Documentation
+=============
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-.. automodule:: graphitesend
-  :members:
+   intro
+   tutorail
+   moduledocs
 
 
+Bugs/ticket tracker
+-------------------
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+To file new bugs or search existing ones, you may visit GraphiteSends's `Github Issues
+<https://github.com/daniellawrence/graphitesend/issues>`_ page. This does require a (free, easy to set up) Github account.
 
