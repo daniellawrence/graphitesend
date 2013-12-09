@@ -33,7 +33,7 @@ Documentation
    :maxdepth: 3
 
    intro
-   tutorail
+   tutorial
    moduledocs
 
 
