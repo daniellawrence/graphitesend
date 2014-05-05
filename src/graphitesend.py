@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 
-import time
-import socket
+import logging
 import os
 import pickle
+import socket
 import struct
+import time
 _module_instance = None
 __version__ = "0.3.0"
 
-default_graphite_server = 'graphite'
-default_graphite_plaintext_port = 2003
 default_graphite_pickle_port = 2004
+default_graphite_plaintext_port = 2003
+default_graphite_server = 'graphite'
+log =logging.getLogger(__name__)
 
 
 class GraphiteSendException(Exception):
@@ -267,9 +269,9 @@ class GraphiteClient(object):
         if type(value).__name__ in ['str', 'unicode']:
             value = float(value)
 
-        print "metric: '%s'" % metric
+        log.debug("metric: '%s'" % metric)
         metric = self.clean_metric_name(metric)
-        print "metric: '%s'" % metric
+        log.debug("metric: '%s'" % metric)
 
         message = "%s%s%s %f %d\n" % (self.prefix, metric, self.suffix,
                                       value, timestamp)
@@ -353,7 +355,7 @@ class GraphiteClient(object):
                 metric_timestamp = timestamp
 
             if type(value).__name__ in ['str', 'unicode']:
-                print "metric='%(metric)s'  value='%(value)s'" % locals()
+                log.debug("metric='%(metric)s'  value='%(value)s'" % locals())
                 value = float(value)
 
             metric = self.clean_metric_name(metric)
