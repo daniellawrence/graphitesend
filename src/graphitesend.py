@@ -12,7 +12,7 @@ __version__ = "0.3.0"
 default_graphite_pickle_port = 2004
 default_graphite_plaintext_port = 2003
 default_graphite_server = 'graphite'
-log =logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class GraphiteSendException(Exception):
@@ -20,6 +20,7 @@ class GraphiteSendException(Exception):
 
 
 class GraphiteClient(object):
+
     """
     Graphite Client that will setup a TCP connection to graphite.
 
@@ -65,12 +66,13 @@ class GraphiteClient(object):
       apache.
 
     """
+
     def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
                  debug=False, group=None, system_name=None, suffix=None,
                  lowercase_metric_names=False, connect_on_create=True,
                  fqdn_squash=False,
                  dryrun=False):
-        """ 
+        """
         setup the connection to the graphite server and work out the
         prefix.
 
@@ -112,7 +114,7 @@ class GraphiteClient(object):
 
         if system_name is None:
             if fqdn_squash:
-                tmp_sname = '%s.' % os.uname()[1].replace('.','_')
+                tmp_sname = '%s.' % os.uname()[1].replace('.', '_')
             else:
                 tmp_sname = '%s.' % os.uname()[1]
         elif system_name == '':
@@ -123,9 +125,9 @@ class GraphiteClient(object):
         if group is None:
             tmp_group = ''
         else:
-            tmp_group='%s.' % group
+            tmp_group = '%s.' % group
 
-        prefix="%s%s%s" % (tmp_prefix, tmp_sname, tmp_group)
+        prefix = "%s%s%s" % (tmp_prefix, tmp_sname, tmp_group)
 
         # remove double dots
         if '..' in prefix:
@@ -169,7 +171,6 @@ class GraphiteClient(object):
     def clean_metric_name(self, metric_name):
         """
         Make sure the metric is free of control chars, spaces, tabs, etc.
-        
         """
         metric_name = metric_name.replace('(', '_').replace(')', '')
         metric_name = metric_name.replace(' ', '_').replace('-', '_')
@@ -192,7 +193,7 @@ class GraphiteClient(object):
             self.socket = None
 
     def _send(self, message):
-        """ 
+        """
         Given a message send it to the graphite server.
         """
 
@@ -216,13 +217,15 @@ class GraphiteClient(object):
         # Capture socket closure before send.
         except socket.error as error:
             raise GraphiteSendException(
-                "Socket closed before able to send data to %s, with error: %s" %
+                "Socket closed before able to send data to %s, "
+                "with error: %s" %
                 (self.addr, error)
             )
 
         except Exception as error:
             raise GraphiteSendException(
-                "Unknown error while tring to send data down socket to %s, error: %s" %
+                "Unknown error while tring to send data down socket to %s, "
+                "error: %s" %
                 (self.addr, error)
             )
 
@@ -231,7 +234,8 @@ class GraphiteClient(object):
 
     def _presend(self, message):
         """
-        Complete any message alteration tasks before sending to the graphite server.
+        Complete any message alteration tasks before sending to the graphite
+        server.
         """
         # An option to lowercase the entire message
         if self.lowercase_metric_names:
@@ -244,17 +248,17 @@ class GraphiteClient(object):
         server.
 
         :param metric: name of the metric
-        :type prefix: string 
+        :type prefix: string
         :param value: value of the metric
-        :type prefix: float or int 
+        :type prefix: float or int
         :param timestmap: epoch time of the event
-        :type prefix: float or int 
+        :type prefix: float or int
 
         .. code-block:: python
 
           >>> g = init()
           >>> g.send("metric", 54)
-        
+
         .. code-block:: python
 
           >>> g = init()
@@ -284,14 +288,14 @@ class GraphiteClient(object):
         return self._send(message)
 
     def send_dict(self, data, timestamp=None):
-        """ 
+        """
         Format a dict of metric/values pairs, and send them all to the
         graphite server.
 
         :param data: key,value pair of metric name and metric value
-        :type prefix: dict 
+        :type prefix: dict
         :param timestmap: epoch time of the event
-        :type prefix: float or int 
+        :type prefix: float or int
 
         .. code-block:: python
 
@@ -318,20 +322,20 @@ class GraphiteClient(object):
         return self._send(message)
 
     def send_list(self, data, timestamp=None):
-        """ 
+        """
 
         Format a list of set's of (metric, value) pairs, and send them all
         to the graphite server.
 
         :param data: list of key,value pairs of metric name and metric value
-        :type prefix: list 
+        :type prefix: list
         :param timestmap: epoch time of the event
-        :type prefix: float or int 
+        :type prefix: float or int
 
         .. code-block:: python
 
           >>> g = init()
-          >>> g.send_list([('metric1', 54), ('metric2', 43, 1384418995), ('metricN', 999)])
+          >>> g.send_list([('metric1', 54),('metric2', 43, 1384418995)])
 
         """
         if timestamp is None:
@@ -361,7 +365,8 @@ class GraphiteClient(object):
             metric = self.clean_metric_name(metric)
 
             tmp_message = "%s%s%s %f %d\n" % (self.prefix, metric,
-                                              self.suffix, value, metric_timestamp)
+                                              self.suffix, value,
+                                              metric_timestamp)
             metric_list.append(tmp_message)
 
         message = "".join(metric_list)
@@ -427,12 +432,14 @@ class GraphitePickleClient(GraphiteClient):
         # Capture socket closure before send.
         except socket.error as error:
             raise GraphiteSendException(
-                "Socket closed before able to send data to %s, with error: %s" %
+                "Socket closed before able to send data to %s, "
+                "with error: %s" %
                 (self.addr, error))
 
         except Exception as error:
             raise GraphiteSendException(
-                "Unknown error while tring to send data down socket to %s, error: %s" %
+                "Unknown error while tring to send data down socket to %s, "
+                "error: %s" %
                 (self.addr, error))
 
         return "sent %d long pickled message: %s" % len(message)
