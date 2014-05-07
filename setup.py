@@ -9,7 +9,7 @@ import os
 
 setup(
     name='graphitesend',
-    version='0.3.0',
+    version='0.3.2',
     description='A simple interface for sending metrics to Graphite',
     author='Danny Lawrence',
     author_email='dannyla@linux.com',
