@@ -7,7 +7,7 @@ import socket
 import struct
 import time
 _module_instance = None
-__version__ = "0.3.0"
+__version__ = "0.3.3"
 
 default_graphite_pickle_port = 2004
 default_graphite_plaintext_port = 2003
