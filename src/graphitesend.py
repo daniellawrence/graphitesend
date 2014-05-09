@@ -159,7 +159,7 @@ class GraphiteClient(object):
                 (timeout_in_seconds, self.addr))
         except socket.gaierror:
             raise GraphiteSendException(
-                "No address assoicated with hostname %s:%s" % self.addr)
+                "No address associated with hostname %s:%s" % self.addr)
         except Exception as error:
             raise GraphiteSendException(
                 "unknown exception while connecting to %s - %s" %
