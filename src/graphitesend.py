@@ -49,7 +49,7 @@ class GraphiteClient(object):
     that allow you to setup default locations where your whisper files will
     be kept.
     eg.
-    ( where linuxserver is the name of the localhost)
+    ( where 'linuxserver' is the name of the localhost)
 
     .. code-block:: python
 
@@ -96,7 +96,7 @@ class GraphiteClient(object):
             connect_on_create = False
 
         # Only connect to the graphite server and port if we tell you too.
-        # This is mosty used for testing.
+        # This is mostly used for testing.
         if connect_on_create:
             self.socket = self.connect()
 
@@ -224,7 +224,7 @@ class GraphiteClient(object):
 
         except Exception as error:
             raise GraphiteSendException(
-                "Unknown error while tring to send data down socket to %s, "
+                "Unknown error while trying to send data down socket to %s, "
                 "error: %s" %
                 (self.addr, error)
             )
@@ -438,7 +438,7 @@ class GraphitePickleClient(GraphiteClient):
 
         except Exception as error:
             raise GraphiteSendException(
-                "Unknown error while tring to send data down socket to %s, "
+                "Unknown error while trying to send data down socket to %s, "
                 "error: %s" %
                 (self.addr, error))
 
@@ -457,16 +457,16 @@ def init(init_type='plaintext_tcp', *args, **kwargs):
 
     if init_type not in validate_init_types:
         raise GraphiteSendException(
-            "Invalidte init_type '%s', must be one of: %s" %
+            "Invalid init_type '%s', must be one of: %s" %
             (init_type, ", ".join(validate_init_types)))
 
-    # Use TCP to send data to the plain text reciever on the graphite server.
+    # Use TCP to send data to the plain text receiver on the graphite server.
     if init_type in ['plaintext_tcp', 'plaintext', 'plain']:
         _module_instance = GraphiteClient(*args, **kwargs)
 
-    # Use TCP to send pickled data to the pickle reciver on the graphite
+    # Use TCP to send pickled data to the pickle receiver on the graphite
     # server.
-    if init_type in ['pickle_tcp', 'picke']:
+    if init_type in ['pickle_tcp', 'pickle']:
         _module_instance = GraphiteClient(*args, **kwargs)
 
     return _module_instance
