@@ -382,7 +382,7 @@ class GraphitePickleClient(GraphiteClient):
             kwargs['graphite_port'] = default_graphite_pickle_port
 
         # TODO: Fix this hack and use super.
-        self = GraphiteClient(*args, **kwargs)
+        self = GraphiteClient(*args, **kwargs)  # noqa
 
     def str2listtuple(self, string_message):
         "Covert a string that is ready to be sent to graphite into a tuple"

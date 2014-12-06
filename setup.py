@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 from distutils.core import setup
-import os
 
-#README = "/".join([os.path.dirname(__file__), "README.md"])
+# README = "/".join([os.path.dirname(__file__), "README.md"])
 
-#with open(README) as file:
+# with open(README) as file:
 #        long_description = file.read()
 
 setup(

@@ -53,7 +53,7 @@ class TestAll(unittest.TestCase):
     def test_fqdn_squash(self):
         g = graphitesend.init(fqdn_squash=True)
         custom_prefix = g.prefix
-        expected_results='systems.%s.' % self.hostname.replace('.','_')
+        expected_results = 'systems.%s.' % self.hostname.replace('.', '_')
         self.assertEqual(custom_prefix, expected_results)
 
     def test_noprefix(self):
@@ -97,13 +97,14 @@ class TestAll(unittest.TestCase):
     def test_set_prefix_group(self):
         g = graphitesend.init(prefix='prefix', group='group')
         custom_prefix = g.prefix
-        expected_prefix='prefix.%s.group.' % self.hostname
+        expected_prefix = 'prefix.%s.group.' % self.hostname
         self.assertEqual(custom_prefix, expected_prefix)
 
     def test_set_prefix_group_system(self):
-        g = graphitesend.init(prefix='prefix', system_name='system', group='group')
+        g = graphitesend.init(prefix='prefix', system_name='system',
+                              group='group')
         custom_prefix = g.prefix
-        expected_prefix='prefix.system.group.'
+        expected_prefix = 'prefix.system.group.'
         self.assertEqual(custom_prefix, expected_prefix)
 
     def test_set_suffix(self):
