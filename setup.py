@@ -13,8 +13,8 @@ setup(
     author='Danny Lawrence',
     author_email='dannyla@linux.com',
     url='https://github.com/daniellawrence/graphitesend',
-    package_dir={'': 'src'},
-    packages=[''],
+    # package_dir={'': ''},
+    packages=['graphitesend'],
     scripts=['bin/graphitesend'],
     long_description="https://github.com/daniellawrence/graphitesend",
 )

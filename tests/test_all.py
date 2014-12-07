@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
+from graphitesend import graphitesend
 import unittest
-import graphitesend
+import socket
+import os
 
 
 class TestAll(unittest.TestCase):
@@ -15,13 +17,22 @@ class TestAll(unittest.TestCase):
         # running on one of my (dannyla@linux.com) systems.
         # graphitesend.default_graphite_server = 'graphite.dansysadm.com'
         graphitesend.default_graphite_server = 'localhost'
-        import os
         self.hostname = os.uname()[1]
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server.bind(('localhost', 2003))
+        self.server.listen(5)
 
     def tearDown(self):
         """ reset graphitesend """
         # Drop any connections or modules that have been setup from other tests
         graphitesend.reset()
+        try:
+            self.server.shutdown(socket.SHUT_RD)
+            self.server.close()
+        except Exception:
+            pass
+        self.server = None
 
     def test_connect_exception_on_badhost(self):
         bad_graphite_server = 'missinggraphiteserver.example.com'
@@ -227,6 +238,7 @@ class TestAll(unittest.TestCase):
         graphite_instance = graphitesend.init(prefix='test', system_name='foo')
         # Make sure it can handle custom timestamp, fill in the missing with
         # the current time.
+        (c, addr) = self.server.accept()
         response = graphite_instance.send_list(
             [
                 ('metric', 1),
@@ -237,6 +249,11 @@ class TestAll(unittest.TestCase):
         # self.assertEqual('sent 69 long message:' in response, True)
         self.assertEqual('test.foo.metric 1.000000 4' in response, True)
         self.assertEqual('test.foo.metric 2.000000 2' in response, True)
+        sent_on_socket = c.recv(69)
+        self.assertEqual('test.foo.metric 1.000000 4' in sent_on_socket, True)
+        self.assertEqual('test.foo.metric 2.000000 2' in sent_on_socket, True)
+        # self.server.shutdown(socket.SHUT_RD)
+        # self.server.close()
 
 
 if __name__ == '__main__':

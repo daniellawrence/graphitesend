@@ -97,8 +97,9 @@ class GraphiteClient(object):
 
         # Only connect to the graphite server and port if we tell you too.
         # This is mostly used for testing.
+        self.socket = socket.socket()
         if connect_on_create:
-            self.socket = self.connect()
+            self.connect()
 
         self.debug = debug
         self.lastmessage = None
@@ -149,10 +150,9 @@ class GraphiteClient(object):
         Make a TCP connection to the graphite server on port self.port
         """
         timeout_in_seconds = 2
-        local_socket = socket.socket()
-        local_socket.settimeout(timeout_in_seconds)
+        self.socket.settimeout(timeout_in_seconds)
         try:
-            local_socket.connect(self.addr)
+            self.socket.connect(self.addr)
         except socket.timeout:
             raise GraphiteSendException(
                 "Took over %d second(s) to connect to %s" %
@@ -166,7 +166,7 @@ class GraphiteClient(object):
                 (self.addr, error)
             )
 
-        return local_socket
+        return self.socket
 
     def clean_metric_name(self, metric_name):
         """
@@ -186,6 +186,8 @@ class GraphiteClient(object):
 
         # If its currently a socket, set it to None
         except AttributeError:
+            self.socket = None
+        except Exception:
             self.socket = None
 
         # Set the self.socket to None, no matter what.
@@ -382,7 +384,8 @@ class GraphitePickleClient(GraphiteClient):
             kwargs['graphite_port'] = default_graphite_pickle_port
 
         # TODO: Fix this hack and use super.
-        self = GraphiteClient(*args, **kwargs)  # noqa
+        # self = GraphiteClient(*args, **kwargs)  # noqa
+        super(self.__class__, self).__init__(*args, **kwargs)
 
     def str2listtuple(self, string_message):
         "Covert a string that is ready to be sent to graphite into a tuple"
@@ -390,19 +393,30 @@ class GraphitePickleClient(GraphiteClient):
         if type(string_message).__name__ not in ('str', 'unicode'):
             raise TypeError("Must provide a string or unicode")
 
+        if not string_message.endswith('\n'):
+            string_message += "\n"
+
         tpl_list = []
         for line in string_message.split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+            path, metric, timestamp = (None, None, None)
             try:
                 (path, metric, timestamp) = line.split()
             except ValueError:
                 raise ValueError(
-                    "message must contain - pain, metric and timestamp")
+                    "message must contain - metric_name, value and timestamp '%s'"
+                    % line)
             try:
                 timestamp = float(timestamp)
             except ValueError:
                 raise ValueError("Timestamp must be float or int")
 
             tpl_list.append((path, (timestamp, metric)))
+
+        if len(tpl_list) == 0:
+            raise GraphiteSendException("No messages to send")
 
         payload = pickle.dumps(tpl_list)
         header = struct.pack("!L", len(payload))
@@ -418,7 +432,7 @@ class GraphitePickleClient(GraphiteClient):
             message = message.lower()
 
         # convert the message into a pickled payload.
-        message = self.str2listtupe(message)
+        message = self.str2listtuple(message)
 
         try:
             self.socket.sendall(message)
@@ -442,7 +456,7 @@ class GraphitePickleClient(GraphiteClient):
                 "error: %s" %
                 (self.addr, error))
 
-        return "sent %d long pickled message: %s" % len(message)
+        return "sent %d long pickled message" % len(message)
 
 
 def init(init_type='plaintext_tcp', *args, **kwargs):
@@ -467,7 +481,7 @@ def init(init_type='plaintext_tcp', *args, **kwargs):
     # Use TCP to send pickled data to the pickle receiver on the graphite
     # server.
     if init_type in ['pickle_tcp', 'pickle']:
-        _module_instance = GraphiteClient(*args, **kwargs)
+        _module_instance = GraphitePickleClient(*args, **kwargs)
 
     return _module_instance
 
@@ -538,5 +552,5 @@ def cli():
     graphitesend_instance = init()
     graphitesend_instance.send(metric, value)
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     cli()
