@@ -15,6 +15,10 @@ setup(
     url='https://github.com/daniellawrence/graphitesend',
     # package_dir={'': ''},
     packages=['graphitesend'],
-    scripts=['bin/graphitesend'],
     long_description="https://github.com/daniellawrence/graphitesend",
+    entry_points={
+        'console_scripts': [
+            'graphitesend = graphitesend.graphitesend:cli',
+        ],
+    }
 )
