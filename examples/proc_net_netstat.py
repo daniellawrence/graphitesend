@@ -12,4 +12,4 @@ ip_values = lines[3].split()[1:]
 data_list = zip(tcp_metrics + ip_metrics, tcp_values + ip_values)
 
 g = graphitesend.init(group='netstat.', lowercase_metric_names=True)
-print g.send_list(data_list)
+print(g.send_list(data_list))
