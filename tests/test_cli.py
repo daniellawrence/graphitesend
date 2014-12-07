@@ -56,7 +56,7 @@ class TestCli(unittest.TestCase):
         with self.assertRaises(graphitesend.GraphiteSendException):
             graphitesend.send_list([('test_metric', 50), ])
 
-        graphitesend.init()
+        graphitesend.init(system_name='')
         graphitesend.send_list([('test_send_list', 50), ])
         (c, addr) = self.server.accept()
         sent_on_socket = c.recv(69)
@@ -66,7 +66,7 @@ class TestCli(unittest.TestCase):
         with self.assertRaises(graphitesend.GraphiteSendException):
             graphitesend.send_dict({'test_metric': 50})
 
-        graphitesend.init()
+        graphitesend.init(system_name='')
         graphitesend.send_dict({'test_send_dict': 50})
         (c, addr) = self.server.accept()
         sent_on_socket = c.recv(69)
@@ -76,7 +76,7 @@ class TestCli(unittest.TestCase):
         with self.assertRaises(graphitesend.GraphiteSendException):
             graphitesend.send('test_metric', 50)
 
-        graphitesend.init()
+        graphitesend.init(system_name='')
         graphitesend.send('test_send', 50)
         (c, addr) = self.server.accept()
         sent_on_socket = c.recv(69)
@@ -138,14 +138,14 @@ class TestCli(unittest.TestCase):
         )
 
     def test_send_list_str_to_int(self):
-        graphitesend.init()
+        graphitesend.init(system_name='')
         graphitesend.send_list([('test_send_list', '50'), ])
         (c, addr) = self.server.accept()
         sent_on_socket = c.recv(69)
         self.assertIn('test_send_list 50.000000', sent_on_socket)
 
     def test_send_dict_str_to_int(self):
-        graphitesend.init()
+        graphitesend.init(system_name='')
         graphitesend.send_dict({'test_send_dict': '50'})
         (c, addr) = self.server.accept()
         sent_on_socket = c.recv(69)
