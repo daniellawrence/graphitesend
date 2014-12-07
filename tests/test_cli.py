@@ -49,7 +49,7 @@ class TestCli(unittest.TestCase):
         sys.argv = ['graphitesend_cli_test', 'test_cli_metric', '50']
         graphitesend.cli()
         (c, addr) = self.server.accept()
-        sent_on_socket = c.recv(69)
+        sent_on_socket = c.recv(1024)
         self.assertIn('test_cli_metric 50.000000', sent_on_socket)
 
     def test_send_list(self):
