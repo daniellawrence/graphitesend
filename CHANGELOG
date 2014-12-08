@@ -1,5 +1,11 @@
+dev
+---
+	* Switch to tox for testing
+	* Adding coverage test
+	* Few pep8/flake fixes
+
 0.3.5
 -----
 
-* Added CHANGELOG
-* Purge generated debian/* files from git
+	* Added CHANGELOG
+	* Purge generated debian/* files from git

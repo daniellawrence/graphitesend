@@ -21,4 +21,4 @@ for line in open('/proc/meminfo').readlines():
 
     data.append((metric, value))
 
-print g.send_list(data)
+print(g.send_list(data))

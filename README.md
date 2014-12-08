@@ -5,6 +5,7 @@ graphitesend
 [![Pypi Downloads](https://pypip.in/d/graphitesend/badge.png)](https://crate.io/packages/graphitesend)
 [![Pypi Version](https://pypip.in/v/graphitesend/badge.png)](https://crate.io/packages/graphitesend)
 [![Changelog](http://allmychanges.com/p/python/graphitesend/badge/)](http://allmychanges.com/p/python/graphitesend/?utm_source=badge)
+[![Coverage Status](https://coveralls.io/repos/daniellawrence/graphitesend/badge.png)](https://coveralls.io/r/daniellawrence/graphitesend)
 
 Easy python bindings to write to Carbon ( Re-write of carbonclient).
 
