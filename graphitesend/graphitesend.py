@@ -6,7 +6,7 @@ import pickle
 import socket
 import struct
 import time
-from __init__ import __version__  # noqa
+__version__ = "0.4.0"
 _module_instance = None
 
 default_graphite_pickle_port = 2004

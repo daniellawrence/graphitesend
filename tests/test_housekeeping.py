@@ -28,9 +28,7 @@ class HouseKeeping(unittest.TestCase):
         self.assertEqual(__version__, latest_tag)
 
     def test_pip_install(self):
-        x = os.popen("pip uninstall graphitesend -y")
-        print x.read()
-        y = os.popen("pip install -e .")
-        print y.read()
+        os.popen("pip uninstall graphitesend -y").read()
+        os.popen("pip install -e ."),read()
         pip_freeze_stdout = os.popen("pip freeze").read()
         self.assertIn("graphitesend", pip_freeze_stdout)
