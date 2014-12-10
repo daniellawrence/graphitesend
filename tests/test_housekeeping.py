@@ -29,6 +29,6 @@ class HouseKeeping(unittest.TestCase):
 
     def test_pip_install(self):
         os.popen("pip uninstall graphitesend -y").read()
-        os.popen("pip install -e ."),read()
+        os.popen("pip install -e .").read()
         pip_freeze_stdout = os.popen("pip freeze").read()
         self.assertIn("graphitesend", pip_freeze_stdout)
