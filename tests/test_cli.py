@@ -87,11 +87,11 @@ class TestCli(unittest.TestCase):
         self.assertEqual(type(g), type(graphitesend.GraphiteClient()))
 
         for init_type in ['plaintext_tcp', 'plaintext', 'plain']:
-            g = graphitesend.init(init_type=init_type)
+            g = graphitesend.init(init_type=init_type, dryrun=True)
             self.assertEqual(type(g), type(graphitesend.GraphiteClient()))
 
         for init_type in ['pickle', 'pickle_tcp']:
-            g = graphitesend.init(init_type=init_type)
+            g = graphitesend.init(init_type=init_type, dryrun=True)
             self.assertEqual(type(g),
                              type(graphitesend.GraphitePickleClient()))
 
