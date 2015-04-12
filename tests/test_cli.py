@@ -1,10 +1,10 @@
-import unittest
+import unittest2
 from graphitesend import graphitesend
 import os
 import socket
 
 
-class TestCli(unittest.TestCase):
+class TestCli(unittest2.TestCase):
     """ Tests to make sure that a dryrun is just that. """
 
     def setUp(self):

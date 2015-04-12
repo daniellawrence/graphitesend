@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 from graphitesend import graphitesend
-import unittest
+import unittest2
 import socket
 import os
 
 
-class TestAll(unittest.TestCase):
+class TestAll(unittest2.TestCase):
     """ Basic tests ( better than nothing ) """
 
     def setUp(self):

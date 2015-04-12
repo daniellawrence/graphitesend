@@ -1,9 +1,9 @@
-import unittest
+import unittest2
 import os
 import datetime
 
 
-class HouseKeeping(unittest.TestCase):
+class HouseKeeping(unittest2.TestCase):
 
     def test_license_year(self):
         self.assertTrue(os.path.exists('LICENSE.txt'))
