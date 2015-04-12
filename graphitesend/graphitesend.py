@@ -209,7 +209,7 @@ class GraphiteClient(object):
             )
 
         try:
-            self.socket.sendall(bytes(message))
+            self.socket.sendall(bytes(message, 'UTF-8'))
 
         # Capture missing socket.
         except socket.gaierror as error:
@@ -288,7 +288,7 @@ class GraphiteClient(object):
         if self.dryrun:
             return message
 
-        return self._send(bytes(message))
+        return self._send(bytes(message, 'UTF-8'))
 
     def send_dict(self, data, timestamp=None):
         """
@@ -373,7 +373,7 @@ class GraphiteClient(object):
             metric_list.append(tmp_message)
 
         message = "".join(metric_list)
-        return self._send(bytes(message))
+        return self._send(bytes(message, 'UTF-8'))
 
 
 class GraphitePickleClient(GraphiteClient):
