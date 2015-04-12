@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from builtins import object
 
 import logging
 import os
@@ -312,7 +313,7 @@ class GraphiteClient(object):
 
         metric_list = []
 
-        for metric, value in data.items():
+        for metric, value in list(data.items()):
             if type(value).__name__ in ['str', 'unicode']:
                 value = float(value)
             metric = self.clean_metric_name(metric)
