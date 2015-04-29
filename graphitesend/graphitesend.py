@@ -100,6 +100,7 @@ class GraphiteClient(object):
         # This is mostly used for testing.
         self.socket = socket.socket()
         if connect_on_create:
+            self.timeout_in_seconds = timeout_in_seconds
             self.connect()
 
         self.debug = debug
@@ -107,7 +108,6 @@ class GraphiteClient(object):
 
         self.lowercase_metric_names = lowercase_metric_names
 
-        self.timeout_in_seconds = timeout_in_seconds
         if prefix is None:
             tmp_prefix = 'systems.'
         elif prefix == '':
