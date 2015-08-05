@@ -14,6 +14,7 @@ default_graphite_plaintext_port = 2003
 default_graphite_server = 'graphite'
 log = logging.getLogger(__name__)
 
+__version__ = "0.4.0"
 
 class GraphiteSendException(Exception):
     pass
