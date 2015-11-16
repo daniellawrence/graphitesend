@@ -284,9 +284,6 @@ class GraphiteClient(object):
 
         message = self. _presend(message)
 
-        if self.dryrun:
-            return message
-
         return self._send(message)
 
     def send_dict(self, data, timestamp=None):
