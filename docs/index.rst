@@ -16,9 +16,9 @@ About
 Installation
 ============
 
-Stable releases of graphitesnd are best installed via ``pip`` or ``easy_install``.
+Stable releases of graphitsend are best installed via ``pip`` or ``easy_install``.
 
-We recommend using the latest stable version of graphitesnd; releases are made often
+We recommend using the latest stable version of graphitsend; releases are made often
 to prevent any large gaps in functionality between the latest stable release
 and the development version.
 
