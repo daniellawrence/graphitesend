@@ -22,10 +22,10 @@ class HouseKeeping(unittest.TestCase):
         self.assertIn(latest_tag, changelog_text)
 
     def test_version_updated_in_code(self):
-        from graphitesend import __version__
+        from graphitesend import VERSION
         latest_tag_cmd = "git describe --abbrev=0 --tags"
         latest_tag = os.popen(latest_tag_cmd).read().strip()
-        self.assertEqual(__version__, latest_tag)
+        self.assertEqual(VERSION, latest_tag)
 
     def test_pip_install(self):
         x = os.popen("pip uninstall graphitesend -y")
