@@ -1,4 +1,5 @@
 language: python
+
 python:
   - "2.7"
 # command to install dependencies
@@ -8,4 +9,6 @@ script:
   - tox
 after_success:
   coveralls
+
 sudo: false
+cache: pip
