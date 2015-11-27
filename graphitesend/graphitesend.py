@@ -42,6 +42,7 @@ class GraphiteClient(object):
     :type fqdn_squash: True or False
     :param dryrun: Toggle if it will really send metrics or just return them
     :type dryrun: True or False
+    :param timeout_in_seconds: Number of seconds before a connection is timed out.
 
     It will then send any metrics that you give it via
     the .send() or .send_dict().
@@ -69,9 +70,9 @@ class GraphiteClient(object):
     """
 
     def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
-                 debug=False, group=None, system_name=None, suffix=None,
-                 lowercase_metric_names=False, connect_on_create=True,
-                 fqdn_squash=False,
+                 timeout_in_seconds=2, debug=False, group=None, 
+                 system_name=None, suffix=None, lowercase_metric_names=False, 
+                 connect_on_create=True, fqdn_squash=False,
                  dryrun=False):
         """
         setup the connection to the graphite server and work out the
@@ -100,6 +101,7 @@ class GraphiteClient(object):
         # This is mostly used for testing.
         self.socket = socket.socket()
         if connect_on_create:
+            self.timeout_in_seconds = timeout_in_seconds
             self.connect()
 
         self.debug = debug
@@ -150,8 +152,7 @@ class GraphiteClient(object):
         """
         Make a TCP connection to the graphite server on port self.port
         """
-        timeout_in_seconds = 2
-        self.socket.settimeout(timeout_in_seconds)
+        self.socket.settimeout(self.timeout_in_seconds)
         try:
             self.socket.connect(self.addr)
         except socket.timeout:
