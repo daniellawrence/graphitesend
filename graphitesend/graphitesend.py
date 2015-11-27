@@ -70,8 +70,8 @@ class GraphiteClient(object):
     """
 
     def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
-                 timeout_in_seconds=2, debug=False, group=None, 
-                 system_name=None, suffix=None, lowercase_metric_names=False, 
+                 timeout_in_seconds=2, debug=False, group=None,
+                 system_name=None, suffix=None, lowercase_metric_names=False,
                  connect_on_create=True, fqdn_squash=False,
                  dryrun=False):
         """
@@ -99,9 +99,9 @@ class GraphiteClient(object):
 
         # Only connect to the graphite server and port if we tell you too.
         # This is mostly used for testing.
+        self.timeout_in_seconds = int(timeout_in_seconds)
         self.socket = socket.socket()
         if connect_on_create:
-            self.timeout_in_seconds = timeout_in_seconds
             self.connect()
 
         self.debug = debug
@@ -158,7 +158,7 @@ class GraphiteClient(object):
         except socket.timeout:
             raise GraphiteSendException(
                 "Took over %d second(s) to connect to %s" %
-                (timeout_in_seconds, self.addr))
+                (self.timeout_in_seconds, self.addr))
         except socket.gaierror:
             raise GraphiteSendException(
                 "No address associated with hostname %s:%s" % self.addr)
