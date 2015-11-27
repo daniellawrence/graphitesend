@@ -70,8 +70,8 @@ class GraphiteClient(object):
     """
 
     def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
-                 timeout_in_seconds=2, debug=False, group=None, 
-                 system_name=None, suffix=None, lowercase_metric_names=False, 
+                 timeout_in_seconds=2, debug=False, group=None,
+                 system_name=None, suffix=None, lowercase_metric_names=False,
                  connect_on_create=True, fqdn_squash=False,
                  dryrun=False):
         """
@@ -101,7 +101,7 @@ class GraphiteClient(object):
         # This is mostly used for testing.
         self.socket = socket.socket()
         if connect_on_create:
-            self.timeout_in_seconds = timeout_in_seconds
+            self.timeout_in_seconds = int(timeout_in_seconds)
             self.connect()
 
         self.debug = debug
