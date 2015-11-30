@@ -6,18 +6,25 @@ import pickle
 import socket
 import struct
 import time
-_module_instance = None
-
-default_graphite_pickle_port = 2004
-default_graphite_plaintext_port = 2003
-default_graphite_server = 'graphite'
-log = logging.getLogger(__name__)
 
 VERSION = "0.4.0"
+GRAPHITE_PICKLE_PORT = 2004
+GRAPHITE_PLAINTEXT_PORT = 2003
+GRAPHITE_SERVER = 'graphite'
+SOCKET_TIMEOUT = 2
+log = logging.getLogger(__name__)
 
 
 class GraphiteSendException(Exception):
     pass
+
+
+class DryrunSocket(object):
+    def __init__(self):
+        pass
+
+    def sendall(self, *args, **kwargs):
+        pass
 
 
 class GraphiteClient(object):
@@ -68,12 +75,29 @@ class GraphiteClient(object):
       apache.
 
     """
+    _instance = None
 
-    def __init__(self, prefix=None, graphite_server=None, graphite_port=2003,
-                 timeout_in_seconds=2, debug=False, group=None,
-                 system_name=None, suffix=None, lowercase_metric_names=False,
-                 connect_on_create=True, fqdn_squash=False,
-                 dryrun=False):
+    def __new__(klass, val):
+        if GraphiteClient._instance is None:
+            GraphiteClient._instance = object.__new__(klass)
+        GraphiteClient._instance.val = val
+        return GraphiteClient._instance
+
+    def __init__(
+            self,
+            prefix='systems',
+            suffix='',
+            graphite_server=GRAPHITE_SERVER,
+            graphite_port=GRAPHITE_PLAINTEXT_PORT,
+            timeout_in_seconds=SOCKET_TIMEOUT,
+            debug=False,
+            group=None,
+            system_name=os.uname()[1],
+            lowercase_metric_names=False,
+            connect_on_create=True,
+            fqdn_squash=False,
+            dryrun=False
+    ):
         """
         setup the connection to the graphite server and work out the
         prefix.
@@ -83,92 +107,44 @@ class GraphiteClient(object):
 
         """
 
-        # If we are not passed a host, then use the graphite server defined
-        # in the module.
-        if not graphite_server:
-            graphite_server = default_graphite_server
         self.addr = (graphite_server, graphite_port)
 
         # If this is a dry run, then we do not want to configure a connection
         # or try and make the connection once we create the object.
-        self.dryrun = dryrun
-        if self.dryrun:
-            self.addr = None
-            graphite_server = None
-            connect_on_create = False
-
-        # Only connect to the graphite server and port if we tell you too.
-        # This is mostly used for testing.
-        self.timeout_in_seconds = int(timeout_in_seconds)
-        self.socket = socket.socket()
-        if connect_on_create:
-            self.connect()
-
-        self.debug = debug
-        self.lastmessage = None
-
-        self.lowercase_metric_names = lowercase_metric_names
-
-        if prefix is None:
-            tmp_prefix = 'systems.'
-        elif prefix == '':
-            tmp_prefix = ''
+        if dryrun:
+            self.socket = DryrunSocket()
         else:
-            tmp_prefix = "%s." % prefix
+            self.socket = socket.socket()
 
-        if system_name is None:
-            if fqdn_squash:
-                tmp_sname = '%s.' % os.uname()[1].replace('.', '_')
-            else:
-                tmp_sname = '%s.' % os.uname()[1]
-        elif system_name == '':
-            tmp_sname = ''
-        else:
-            tmp_sname = '%s.' % system_name
+        self.metric_formatters = [self.clean_metric_name]
+        if lowercase_metric_names:
+            self.metric_formatters.append(self.lowercase_metric_names)
 
-        if group is None:
-            tmp_group = ''
-        else:
-            tmp_group = '%s.' % group
+        def connect(self):
+            "Make a TCP connection to the graphite server on port self.port"
+            self.socket.settimeout(self.timeout_in_seconds)
+            try:
+                self.socket.connect(self.addr)
+            except socket.timeout:
+                raise GraphiteSendException(
+                    "Took over %d second(s) to connect to %s" %
+                    (self.timeout_in_seconds, self.addr))
+            except socket.gaierror:
+                raise GraphiteSendException(
+                    "No address associated with hostname %s:%s" % self.addr)
+            except Exception as error:
+                raise GraphiteSendException(
+                    "unknown exception while connecting to %s - %s" %
+                    (self.addr, error)
+                )
+            return self.socket
 
-        prefix = "%s%s%s" % (tmp_prefix, tmp_sname, tmp_group)
-
-        # remove double dots
-        if '..' in prefix:
-            prefix = prefix.replace('..', '.')
-
-        # Replace ' 'spaces with _
-        if ' ' in prefix:
-            prefix = prefix.replace(' ', '_')
-
-        if suffix:
-            self.suffix = suffix
-        else:
-            self.suffix = ""
-
-        self.prefix = prefix
-
-    def connect(self):
-        """
-        Make a TCP connection to the graphite server on port self.port
-        """
-        self.socket.settimeout(self.timeout_in_seconds)
-        try:
-            self.socket.connect(self.addr)
-        except socket.timeout:
-            raise GraphiteSendException(
-                "Took over %d second(s) to connect to %s" %
-                (self.timeout_in_seconds, self.addr))
-        except socket.gaierror:
-            raise GraphiteSendException(
-                "No address associated with hostname %s:%s" % self.addr)
-        except Exception as error:
-            raise GraphiteSendException(
-                "unknown exception while connecting to %s - %s" %
-                (self.addr, error)
-            )
-
-        return self.socket
+    def format_metric_name(self, metric_name, prefix='', group='', suffix=''):
+        if prefix:
+            prefix = "{0}.".format(prefix)
+        if group:
+            group = "{0}.".format(group)
+        return "{prefix}{group}{metric_name}{suffix}".format(**locals())
 
     def clean_metric_name(self, metric_name):
         """
@@ -177,6 +153,7 @@ class GraphiteClient(object):
         metric_name = metric_name.replace('(', '_').replace(')', '')
         metric_name = metric_name.replace(' ', '_').replace('-', '_')
         metric_name = metric_name.replace('/', '_').replace('\\', '_')
+        metric_name = metric_name.replace('..', '.')
         return metric_name
 
     def disconnect(self):
@@ -201,13 +178,8 @@ class GraphiteClient(object):
         Given a message send it to the graphite server.
         """
 
-        if self.dryrun:
-            return message
-
         if not self.socket:
-            raise GraphiteSendException(
-                "Socket was not created before send"
-            )
+            raise GraphiteSendException("Socket was not created before send")
 
         try:
             self.socket.sendall(message)
