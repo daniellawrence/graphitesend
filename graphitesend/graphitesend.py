@@ -170,6 +170,10 @@ class GraphiteClient(object):
 
         return self.socket
 
+    def reconnect(self):
+        self.disconnect()
+        self.connect()
+
     def clean_metric_name(self, metric_name):
         """
         Make sure the metric is free of control chars, spaces, tabs, etc.
