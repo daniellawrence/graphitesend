@@ -100,7 +100,6 @@ class GraphiteClient(object):
         # Only connect to the graphite server and port if we tell you too.
         # This is mostly used for testing.
         self.timeout_in_seconds = int(timeout_in_seconds)
-        self.socket = socket.socket()
         if connect_on_create:
             self.connect()
 
@@ -152,6 +151,7 @@ class GraphiteClient(object):
         """
         Make a TCP connection to the graphite server on port self.port
         """
+        self.socket = socket.socket()
         self.socket.settimeout(self.timeout_in_seconds)
         try:
             self.socket.connect(self.addr)
