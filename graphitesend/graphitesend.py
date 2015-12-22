@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+try:
+    from gevent import monkey
+    monkey.patch_socket()
+    import gevent
+except ImportError:
+    gevent = False
+
 import logging
 import os
 import pickle
@@ -73,7 +80,7 @@ class GraphiteClient(object):
                  timeout_in_seconds=2, debug=False, group=None,
                  system_name=None, suffix=None, lowercase_metric_names=False,
                  connect_on_create=True, fqdn_squash=False,
-                 dryrun=False):
+                 dryrun=False, asynchronous=False):
         """
         setup the connection to the graphite server and work out the
         prefix.
@@ -107,6 +114,7 @@ class GraphiteClient(object):
         self.lastmessage = None
 
         self.lowercase_metric_names = lowercase_metric_names
+        self.asynchronous = asynchronous
 
         if prefix is None:
             tmp_prefix = 'systems.'
