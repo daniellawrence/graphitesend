@@ -21,7 +21,7 @@ setup(
             'graphitesend = graphitesend.graphitesend:cli',
         ],
     },
-    extras_require = {
+    extras_require={
         'asynchronous': ['gevent>=1.0.0'],
     }
 )
