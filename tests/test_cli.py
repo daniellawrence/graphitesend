@@ -95,9 +95,29 @@ class TestCli(unittest.TestCase):
             self.assertEqual(type(g),
                              type(graphitesend.GraphitePickleClient()))
 
+    def test_init_bad_type(self):
+        with self.assertRaises(graphitesend.GraphiteSendException):
+            graphitesend.init(init_type="bad_type", dryrun=True)
+
+    def test_socket_timeout(self):
+        with self.assertRaises(graphitesend.GraphiteSendException):
+            graphitesend.init(timeout_in_seconds=.0000000000001)
+
     def test_send_prefix_empty(self):
         graphitesend.init(prefix='', system_name='')
         graphitesend.send('test_send', 50)
+        (c, addr) = self.server.accept()
+        sent_on_socket = c.recv(69)
+        self.assertTrue(sent_on_socket.startswith('test_send 50.000000'))
+
+    def test_send_reconnect_send_again(self):
+        g = graphitesend.init(prefix='', system_name='')
+        g.send('test_send', 50)
+        (c, addr) = self.server.accept()
+        sent_on_socket = c.recv(69)
+        self.assertTrue(sent_on_socket.startswith('test_send 50.000000'))
+        g.reconnect()
+        g.send('test_send', 50)
         (c, addr) = self.server.accept()
         sent_on_socket = c.recv(69)
         self.assertTrue(sent_on_socket.startswith('test_send 50.000000'))
