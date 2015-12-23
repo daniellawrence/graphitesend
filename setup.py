@@ -20,5 +20,8 @@ setup(
         'console_scripts': [
             'graphitesend = graphitesend.graphitesend:cli',
         ],
+    },
+    extras_require = {
+        'asynchronous': ['gevent>=1.0.0'],
     }
 )
