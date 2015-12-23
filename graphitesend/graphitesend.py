@@ -210,7 +210,7 @@ class GraphiteClient(object):
             )
 
         try:
-            self.socket.sendall(message)
+            self.socket.sendall(message.encode("ascii"))
 
         # Capture missing socket.
         except socket.gaierror as error:
