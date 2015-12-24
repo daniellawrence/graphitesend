@@ -255,6 +255,14 @@ class TestAll(unittest.TestCase):
         # self.server.shutdown(socket.SHUT_RD)
         # self.server.close()
 
+    def test_send_value_as_string(self):
+        # Make sure it can handle custom timestamp
+        graphite_instance = graphitesend.init(prefix='')
+        response = graphite_instance.send("metric", "1", "1")
+        self.assertEqual('1.00000' in response, True)
+        print response
+        self.assertEqual(response.endswith('1\n'), True)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -72,6 +72,13 @@ class TestCli(unittest.TestCase):
         sent_on_socket = c.recv(69)
         self.assertIn('test_send_dict 50.000000', sent_on_socket)
 
+    def test_send_dict_with_timestamp(self):
+        graphitesend.init(system_name='')
+        graphitesend.send_dict({'test_send_dict': 50}, 1)
+        (c, addr) = self.server.accept()
+        sent_on_socket = c.recv(69)
+        self.assertIn('test_send_dict 50.000000 1\n', sent_on_socket)
+
     def test_send(self):
         with self.assertRaises(graphitesend.GraphiteSendException):
             graphitesend.send('test_metric', 50)
