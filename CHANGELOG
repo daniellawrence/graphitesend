@@ -1,3 +1,10 @@
+0.5.0
+-----
+	* Added asynchronous support via gevent (default: False)
+	* Added timeout_in_seconds (default: 2)
+	* Better test coverage
+	* Minor PEP8 fixes
+
 0.4.0
 -----
 	* Switched to tox for testing

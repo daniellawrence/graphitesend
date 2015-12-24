@@ -20,7 +20,7 @@ default_graphite_plaintext_port = 2003
 default_graphite_server = 'graphite'
 log = logging.getLogger(__name__)
 
-VERSION = "0.4.0"
+VERSION = "0.5.0"
 
 
 class GraphiteSendException(Exception):
@@ -50,7 +50,7 @@ class GraphiteClient(object):
     :param dryrun: Toggle if it will really send metrics or just return them
     :type dryrun: True or False
     :param timeout_in_seconds: Number of seconds before a connection is timed out.
-
+    :param asynchronous: Send messages asynchronouly via gevent
     It will then send any metrics that you give it via
     the .send() or .send_dict().
 

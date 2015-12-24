@@ -205,6 +205,16 @@ Connect to a different graphite server port
 ````
 
 
+Send async messages
+````python
+>>> graphitesend.init(asynchronous=True)
+````
+
+
+Change connect timeout (default 2)
+````python
+>>> graphitesend.init(timeout_in_seconds=5)
+````
 
 
 CLI
