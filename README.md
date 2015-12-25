@@ -2,8 +2,9 @@ graphitesend
 ============
 
 [![Build Status](https://travis-ci.org/daniellawrence/graphitesend.png?banch=master)](https://travis-ci.org/daniellawrence/graphitesend?branch=master)
-[![Pypi Downloads](https://pypip.in/d/graphitesend/badge.png)](https://crate.io/packages/graphitesend)
-[![Pypi Version](https://pypip.in/v/graphitesend/badge.png)](https://crate.io/packages/graphitesend)
+![](https://img.shields.io/pypi/dm/graphitesend.svg)
+![](https://img.shields.io/pypi/dw/graphitesend.svg)
+![](https://img.shields.io/pypi/dd/graphitesend.svg)
 [![Changelog](http://allmychanges.com/p/python/graphitesend/badge/)](http://allmychanges.com/p/python/graphitesend/?utm_source=badge)
 [![Coverage Status](https://coveralls.io/repos/daniellawrence/graphitesend/badge.png)](https://coveralls.io/r/daniellawrence/graphitesend)
 
