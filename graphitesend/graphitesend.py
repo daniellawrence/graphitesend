@@ -229,9 +229,9 @@ class GraphiteClient(object):
         finally:
             self.socket = None
 
-    def _send(self, message):
+    def _dispatch_send(self, message):
         """
-        Given a message send it to the graphite server.
+        Dispatch the different steps of sending
         """
 
         if self.dryrun:
@@ -242,35 +242,45 @@ class GraphiteClient(object):
                 "Socket was not created before send"
             )
 
+        fct = self._send
+
         try:
             if self.asynchronous and gevent:
-                gevent.spawn(self.socket.sendall, message.encode("ascii"))
+                gevent.spawn(fct, message.encode("ascii"))
             else:
-                self.socket.sendall(message.encode("ascii"))
+                fct(message.encode("ascii"))
+        except Exception as e:
+            self._handle_send_error(e)
 
-        # Capture missing socket.
-        except socket.gaierror as error:
+        return "sent {:d} long message: {:.75}".format(
+            len(message), message)
+
+    def _handle_send_error(self, error):
+        if isinstance(error, socket.gaierror):
             raise GraphiteSendException(
                 "Failed to send data to %s, with error: %s" %
                 (self.addr, error))
 
-        # Capture socket closure before send.
-        except socket.error as error:
+        elif isinstance(error, socket.error):
             raise GraphiteSendException(
                 "Socket closed before able to send data to %s, "
                 "with error: %s" %
                 (self.addr, error)
             )
 
-        except Exception as error:
+        else:
             raise GraphiteSendException(
                 "Unknown error while trying to send data down socket to %s, "
                 "error: %s" %
                 (self.addr, error)
             )
 
-        return "sent %d long message: %s" % \
-            (len(message), "".join(message[:75]))
+    def _send(self, message):
+        """
+        Given a message send it to the graphite server.
+        """
+
+        self.socket.sendall(message.encode("ascii"))
 
     def _presend(self, message):
         """
@@ -322,7 +332,7 @@ class GraphiteClient(object):
 
         message = self. _presend(message)
 
-        return self._send(message)
+        return self._dispatch_send(message)
 
     def send_dict(self, data, timestamp=None):
         """
@@ -356,7 +366,7 @@ class GraphiteClient(object):
             metric_list.append(tmp_message)
 
         message = "".join(metric_list)
-        return self._send(message)
+        return self._dispatch_send(message)
 
     def send_list(self, data, timestamp=None):
         """
@@ -407,7 +417,8 @@ class GraphiteClient(object):
             metric_list.append(tmp_message)
 
         message = "".join(metric_list)
-        return self._send(message)
+        return self._dispatch_send(message)
+
 
 
 class GraphitePickleClient(GraphiteClient):

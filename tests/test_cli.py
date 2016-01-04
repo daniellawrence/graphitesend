@@ -132,14 +132,14 @@ class TestCli(unittest.TestCase):
     def test_dryrun(self):
         g = graphitesend.init(dryrun=True)
         dryrun_messsage_send = 'testing dryrun'
-        dryrun_messsage_recv = g._send(dryrun_messsage_send)
+        dryrun_messsage_recv = g._dispatch_send(dryrun_messsage_send)
         self.assertEqual(dryrun_messsage_recv, dryrun_messsage_send)
 
     def test_send_gaierror(self):
         g = graphitesend.init()
         g.socket = True
         with self.assertRaises(graphitesend.GraphiteSendException):
-            g._send('test')
+            g._dispatch_send('test')
 
     def test_str2listtuple_bad(self):
         g = graphitesend.init(init_type='pickle')
