@@ -80,7 +80,7 @@ class GraphiteClient(object):
                  timeout_in_seconds=2, debug=False, group=None,
                  system_name=None, suffix=None, lowercase_metric_names=False,
                  connect_on_create=True, fqdn_squash=False,
-                 dryrun=False, asynchronous=False):
+                 dryrun=False, asynchronous=False, autoreconnect=False):
         """
         setup the connection to the graphite server and work out the
         prefix.
@@ -115,6 +115,7 @@ class GraphiteClient(object):
 
         self.lowercase_metric_names = lowercase_metric_names
         self.asynchronous = asynchronous
+        self._autoreconnect = autoreconnect
 
         if prefix is None:
             tmp_prefix = 'systems.'
@@ -243,6 +244,8 @@ class GraphiteClient(object):
             )
 
         fct = self._send
+        if self._autoreconnect:
+            fct = self._send_and_reconnect
 
         try:
             if self.asynchronous and gevent:
@@ -281,6 +284,14 @@ class GraphiteClient(object):
         """
 
         self.socket.sendall(message.encode("ascii"))
+
+    def _send_and_reconnect(self, message):
+
+        try:
+            self.socket.sendall(message.encode("ascii"))
+        except socket.error:
+            if not self.autoreconnect():
+                raise
 
     def _presend(self, message):
         """
