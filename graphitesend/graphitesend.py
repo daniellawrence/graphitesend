@@ -182,6 +182,27 @@ class GraphiteClient(object):
         self.disconnect()
         self.connect()
 
+    def autoreconnect(self, sleep=1, attempt=3):
+        """
+        Tries to reconnect up to `attempt` times with `sleep` seconds between
+        each try
+
+        :param sleep: time to sleep between two attempts to reconnect
+        :type prefix: float or int
+        :param attempt: maximal number of attempts
+        :type attempt: int
+        """
+
+        while attempt is None or attempt > 0:
+            try:
+                self.reconnect()
+                return True
+            except GraphiteSendException:
+                time.sleep(sleep)
+                attempt -= 1
+
+        return False
+
     def clean_metric_name(self, metric_name):
         """
         Make sure the metric is free of control chars, spaces, tabs, etc.
