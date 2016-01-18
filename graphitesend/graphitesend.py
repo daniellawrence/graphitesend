@@ -431,7 +431,6 @@ class GraphiteClient(object):
         return self._dispatch_send(message)
 
 
-
 class GraphitePickleClient(GraphiteClient):
 
     def __init__(self, *args, **kwargs):
