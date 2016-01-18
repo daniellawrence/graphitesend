@@ -243,15 +243,15 @@ class GraphiteClient(object):
                 "Socket was not created before send"
             )
 
-        fct = self._send
+        sending_function = self._send
         if self._autoreconnect:
-            fct = self._send_and_reconnect
+            sending_function = self._send_and_reconnect
 
         try:
             if self.asynchronous and gevent:
-                gevent.spawn(fct, message.encode("ascii"))
+                gevent.spawn(sending_function, message.encode("ascii"))
             else:
-                fct(message.encode("ascii"))
+                sending_function(message.encode("ascii"))
         except Exception as e:
             self._handle_send_error(e)
 
