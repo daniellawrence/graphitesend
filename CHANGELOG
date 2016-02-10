@@ -1,3 +1,8 @@
+0.6.0
+-----
+	* Happy new year
+	* Added autoreconnect (Thanks  @Shir0kamii)
+
 0.5.0
 -----
 	* Added asynchronous support via gevent (default: False)
