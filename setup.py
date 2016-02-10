@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
     name='graphitesend',
-    version='0.5.0',
+    version='0.6.0',
     description='A simple interface for sending metrics to Graphite',
     author='Danny Lawrence',
     author_email='dannyla@linux.com',
