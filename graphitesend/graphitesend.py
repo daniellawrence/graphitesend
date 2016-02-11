@@ -51,6 +51,8 @@ class GraphiteClient(object):
     :type dryrun: True or False
     :param timeout_in_seconds: Number of seconds before a connection is timed out.
     :param asynchronous: Send messages asynchronouly via gevent
+    :param clean_metric_name: Does GraphiteClient needs to clean metric's name
+    :type clean_metric_name: True or False
     It will then send any metrics that you give it via
     the .send() or .send_dict().
 
@@ -80,7 +82,8 @@ class GraphiteClient(object):
                  timeout_in_seconds=2, debug=False, group=None,
                  system_name=None, suffix=None, lowercase_metric_names=False,
                  connect_on_create=True, fqdn_squash=False,
-                 dryrun=False, asynchronous=False, autoreconnect=False):
+                 dryrun=False, asynchronous=False, autoreconnect=False,
+                 clean_metric_name=True):
         """
         setup the connection to the graphite server and work out the
         prefix.
@@ -116,6 +119,7 @@ class GraphiteClient(object):
         self.lowercase_metric_names = lowercase_metric_names
         self.asynchronous = asynchronous
         self._autoreconnect = autoreconnect
+        self._clean_metric_name = clean_metric_name
 
         if prefix is None:
             tmp_prefix = 'systems.'
@@ -208,6 +212,8 @@ class GraphiteClient(object):
         """
         Make sure the metric is free of control chars, spaces, tabs, etc.
         """
+        if not self._clean_metric_name:
+            return metric_name
         metric_name = metric_name.replace('(', '_').replace(')', '')
         metric_name = metric_name.replace(' ', '_').replace('-', '_')
         metric_name = metric_name.replace('/', '_').replace('\\', '_')
