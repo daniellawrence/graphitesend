@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 try:
-    from gevent import monkey
-    monkey.patch_socket()
     import gevent
 except ImportError:
     gevent = False
