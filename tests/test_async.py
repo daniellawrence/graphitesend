@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
+from gevent import monkey
 from graphitesend import graphitesend
 import unittest
 import socket
+
+monkey.patch_socket()
 
 
 class TestAsync(unittest.TestCase):
