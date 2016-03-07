@@ -114,7 +114,10 @@ class GraphiteClient(object):
         self.lastmessage = None
 
         self.lowercase_metric_names = lowercase_metric_names
-        self.asynchronous = asynchronous
+        if asynchronous:
+            self.asynchronous = self.enable_asynchronous()
+        else:
+            self.asynchronous = False
         self._autoreconnect = autoreconnect
 
         if prefix is None:
@@ -429,6 +432,23 @@ class GraphiteClient(object):
 
         message = "".join(metric_list)
         return self._dispatch_send(message)
+
+    def enable_asynchronous(self):
+        """Check if socket have been monkey patched by gevent"""
+
+        def is_monkey_patched():
+            try:
+                from gevent import monkey, socket
+            except ImportError:
+                return False
+            if hasattr(monkey, "saved"):
+                return "socket" in monkey.saved
+            return gevent.socket.socket == socket.socket
+
+        if not is_monkey_patched():
+            raise Exception("To activate asynchonoucity, please monkey patch"
+                            " the socket module with gevent")
+        return True
 
 
 class GraphitePickleClient(GraphiteClient):
