@@ -114,10 +114,9 @@ class GraphiteClient(object):
         self.lastmessage = None
 
         self.lowercase_metric_names = lowercase_metric_names
+        self.asynchronous = False
         if asynchronous:
             self.asynchronous = self.enable_asynchronous()
-        else:
-            self.asynchronous = False
         self._autoreconnect = autoreconnect
 
         if prefix is None:
