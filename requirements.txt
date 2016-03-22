@@ -1,6 +1,1 @@
 argparse
-coverage
-nose
-pep8
-tox
-coveralls
