@@ -20,7 +20,7 @@ default_graphite_plaintext_port = 2003
 default_graphite_server = 'graphite'
 log = logging.getLogger(__name__)
 
-VERSION = "0.6.1"
+VERSION = "0.7.0"
 
 
 class GraphiteSendException(Exception):
@@ -261,8 +261,7 @@ class GraphiteClient(object):
         except Exception as e:
             self._handle_send_error(e)
 
-        return "sent {:d} long message: {:.75}".format(
-            len(message), message)
+        return "sent {0} long message: {1}".format(len(message), message[:75])
 
     def _handle_send_error(self, error):
         if isinstance(error, socket.gaierror):

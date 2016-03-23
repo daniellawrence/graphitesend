@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from graphitesend import graphitesend
-import unittest
+import unittest2 as unittest
 import socket
 import os
 

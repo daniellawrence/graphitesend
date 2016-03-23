@@ -1,0 +1,7 @@
+-r requirements.txt
+coverage
+nose
+pep8
+tox
+coveralls
+unittest2

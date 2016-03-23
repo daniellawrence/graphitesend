@@ -1,3 +1,7 @@
+0.7.0
+-----
+	* Added python2.6 support, minor formatting change + unitest2
+
 0.6.1
 -----
 	* Added optional clean_metric_name (@Shir0kamii)
