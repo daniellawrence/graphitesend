@@ -67,6 +67,14 @@ class TestAll(unittest.TestCase):
         expected_results = 'systems.%s.' % self.hostname.replace('.', '_')
         self.assertEqual(custom_prefix, expected_results)
 
+    def test_fqdn_squash_socket(self):
+        uname_backup = os.uname
+        g = graphitesend.init(fqdn_squash=True)
+        custom_prefix = g.prefix
+        expected_results = 'systems.%s.' % self.hostname.replace('.', '_')
+        self.assertEqual(custom_prefix, expected_results)
+        os.uname = uname_backup
+
     def test_noprefix(self):
         g = graphitesend.init()
         custom_prefix = g.prefix

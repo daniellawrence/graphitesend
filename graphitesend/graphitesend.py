@@ -23,6 +23,17 @@ log = logging.getLogger(__name__)
 VERSION = "0.7.0"
 
 
+def get_hostname():
+    """Try and get the local hostname via uname.
+
+    if that fails then use socket.gethostname
+    """
+    try:
+        return os.uname()[1]
+    except AttributeError:
+        return socket.gethostname()
+
+
 class GraphiteSendException(Exception):
     pass
 
@@ -130,9 +141,9 @@ class GraphiteClient(object):
 
         if system_name is None:
             if fqdn_squash:
-                tmp_sname = '%s.' % os.uname()[1].replace('.', '_')
+                tmp_sname = '%s.' % get_hostname().replace('.', '_')
             else:
-                tmp_sname = '%s.' % os.uname()[1]
+                tmp_sname = '%s.' % get_hostname()
         elif system_name == '':
             tmp_sname = ''
         else:
