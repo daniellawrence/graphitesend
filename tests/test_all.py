@@ -260,7 +260,7 @@ class TestAll(unittest.TestCase):
         graphite_instance = graphitesend.init(prefix='')
         response = graphite_instance.send("metric", "1", "1")
         self.assertEqual('1.00000' in response, True)
-        print response
+        print(response)
         self.assertEqual(response.endswith('1\n'), True)
 
 

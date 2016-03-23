@@ -255,9 +255,9 @@ class GraphiteClient(object):
 
         try:
             if self.asynchronous and gevent:
-                gevent.spawn(sending_function, message.encode("ascii"))
+                gevent.spawn(sending_function, str(message).encode("ascii"))
             else:
-                sending_function(message.encode("ascii"))
+                sending_function(str(message).encode("ascii"))
         except Exception as e:
             self._handle_send_error(e)
 
@@ -288,7 +288,7 @@ class GraphiteClient(object):
         Given a message send it to the graphite server.
         """
 
-        self.socket.sendall(message.encode("ascii"))
+        self.socket.sendall(str(message).encode("ascii"))
 
     def _send_and_reconnect(self, message):
         """Send _message_ to Graphite Server and attempt reconnect on failure.
@@ -300,12 +300,12 @@ class GraphiteClient(object):
         :raises socket.error: When the socket connection is no longer valid.
         """
         try:
-            self.socket.sendall(message.encode("ascii"))
+            self.socket.sendall(str(message).encode("ascii"))
         except (AttributeError, socket.error):
             if not self.autoreconnect():
                 raise
             else:
-                self.socket.sendall(message.encode("ascii"))
+                self.socket.sendall(str(message).encode("ascii"))
 
     def _presend(self, message):
         """
