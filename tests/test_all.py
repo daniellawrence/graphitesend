@@ -152,6 +152,18 @@ class TestAll(unittest.TestCase):
         metric_name = g.clean_metric_name('test  name')
         self.assertEqual(metric_name, 'test__name')
 
+    def test_clean_metric_false(self):
+        g = graphitesend.init(clean_metric_name=False)
+
+        metric_name = g.clean_metric_name('test(name)')
+        self.assertEqual(metric_name, 'test(name)')
+
+        metric_name = g.clean_metric_name('test name')
+        self.assertEqual(metric_name, 'test name')
+
+        metric_name = g.clean_metric_name('test__name')
+        self.assertEqual(metric_name, 'test__name')
+
     def test_reset(self):
         graphitesend.init()
         graphitesend.reset()
