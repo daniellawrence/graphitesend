@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 try:
-    from gevent import monkey
-    monkey.patch_socket()
     import gevent
 except ImportError:
     gevent = False
@@ -50,7 +48,7 @@ class GraphiteClient(object):
     :param dryrun: Toggle if it will really send metrics or just return them
     :type dryrun: True or False
     :param timeout_in_seconds: Number of seconds before a connection is timed out.
-    :param asynchronous: Send messages asynchronouly via gevent
+    :param asynchronous: Send messages asynchronouly via gevent (You have to monkey patch sockets for it to work)
     :param clean_metric_name: Does GraphiteClient needs to clean metric's name
     :type clean_metric_name: True or False
     It will then send any metrics that you give it via
@@ -117,7 +115,9 @@ class GraphiteClient(object):
         self.lastmessage = None
 
         self.lowercase_metric_names = lowercase_metric_names
-        self.asynchronous = asynchronous
+        self.asynchronous = False
+        if asynchronous:
+            self.asynchronous = self.enable_asynchronous()
         self._autoreconnect = autoreconnect
         self._clean_metric_name = clean_metric_name
 
@@ -443,6 +443,23 @@ class GraphiteClient(object):
 
         message = "".join(metric_list)
         return self._dispatch_send(message)
+
+    def enable_asynchronous(self):
+        """Check if socket have been monkey patched by gevent"""
+
+        def is_monkey_patched():
+            try:
+                from gevent import monkey, socket
+            except ImportError:
+                return False
+            if hasattr(monkey, "saved"):
+                return "socket" in monkey.saved
+            return gevent.socket.socket == socket.socket
+
+        if not is_monkey_patched():
+            raise Exception("To activate asynchonoucity, please monkey patch"
+                            " the socket module with gevent")
+        return True
 
 
 class GraphitePickleClient(GraphiteClient):
