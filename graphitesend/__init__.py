@@ -1,1 +1,1 @@
-from graphitesend import *  # noqa
+from .graphitesend import *  # noqa
