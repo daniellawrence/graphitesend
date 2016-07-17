@@ -255,9 +255,9 @@ class GraphiteClient(object):
 
         try:
             if self.asynchronous and gevent:
-                gevent.spawn(sending_function, message.encode("ascii"))
+                gevent.spawn(sending_function, message)
             else:
-                sending_function(message.encode("ascii"))
+                sending_function(message)
         except Exception as e:
             self._handle_send_error(e)
 
