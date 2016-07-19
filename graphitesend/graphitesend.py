@@ -24,13 +24,15 @@ VERSION = "0.7.0"
 class GraphiteSendException(Exception):
     pass
 
+
 class GraphiteFormatter(object):
     '''Format a metric, value, and timestamp for use on the carbon text socket.'''
-    def __call__(self, metric_name, metric_value, timestamp = None):
+    def __call__(self, metric_name, metric_value, timestamp=None):
         if timestamp is None:
             timestamp = int(time.time())
         message = "%s%s%s %f %d\n" % (metric_name, metric_value, timestamp)
         return message
+
 
 class GraphiteStructuredFormatter(object):
     '''Provides structured metric naming based on a prefix, system name, group, etc
@@ -48,8 +50,8 @@ class GraphiteStructuredFormatter(object):
     :type clean_metric_name: True or False
     '''
     def __init__(self, prefix=None, group=None, system_name=None, suffix=None,
-        lowercase_metric_names=False, fqdn_squash=False, clean_metric_name=True):
-        
+                 lowercase_metric_names=False, fqdn_squash=False, clean_metric_name=True):
+
         # clean up the metric pathing
         if prefix is None:
             tmp_prefix = 'systems.'
@@ -103,9 +105,8 @@ class GraphiteStructuredFormatter(object):
         metric_name = metric_name.replace('/', '_').replace('\\', '_')
         return metric_name
 
-
     '''Format a metric, value, and timestamp for use on the carbon text socket.'''
-    def __call__(self, metric_name, metric_value, timestamp = None):
+    def __call__(self, metric_name, metric_value, timestamp=None):
         if timestamp is None:
             timestamp = int(time.time())
         else:
@@ -115,9 +116,9 @@ class GraphiteStructuredFormatter(object):
             metric_value = float(metric_value)
 
         log.debug("metric: '%s'" % metric_name)
-        metric = self.clean_metric_name(metric_name)
+        metric_name = self.clean_metric_name(metric_name)
         log.debug("metric: '%s'" % metric_name)
- 
+
         message = "%s%s%s %f %d\n" % (self.prefix, metric_name, self.suffix,
                                       metric_value, timestamp)
 
@@ -127,7 +128,6 @@ class GraphiteStructuredFormatter(object):
 
         return message
 
-    
 
 class GraphiteClient(object):
     """
@@ -223,10 +223,9 @@ class GraphiteClient(object):
         self._autoreconnect = autoreconnect
 
         self.formatter = GraphiteStructuredFormatter(prefix=prefix, group=group,
-            system_name=system_name, suffix=suffix,
-            lowercase_metric_names=lowercase_metric_names, fqdn_squash=fqdn_squash,
-            clean_metric_name=clean_metric_name)
-
+                                                     system_name=system_name, suffix=suffix,
+                                                     lowercase_metric_names=lowercase_metric_names, fqdn_squash=fqdn_squash,
+                                                     clean_metric_name=clean_metric_name)
 
     @property
     def prefix(self):
@@ -248,7 +247,6 @@ class GraphiteClient(object):
         deprecated - use the formatter directly for this type of muckery.
         '''
         return self.formatter.lowercase_metric_names
-
 
     def connect(self):
         """
@@ -399,7 +397,7 @@ class GraphiteClient(object):
         """
         return message
 
-    def send(self, metric, value, timestamp=None, formatter = None):
+    def send(self, metric, value, timestamp=None, formatter=None):
         """
         Format a single metric/value pair, and send it to the graphite
         server.
@@ -465,7 +463,7 @@ class GraphiteClient(object):
         message = "".join(metric_list)
         return self._dispatch_send(message)
 
-    def send_list(self, data, timestamp=None, formatter = None):
+    def send_list(self, data, timestamp=None, formatter=None):
         """
 
         Format a list of set's of (metric, value) pairs, and send them all
@@ -592,7 +590,6 @@ class GraphitePickleClient(GraphiteClient):
 
         try:
             self.socket.sendall(message)
-
         # Capture missing socket.
         except socket.gaierror as error:
             raise GraphiteSendException(
