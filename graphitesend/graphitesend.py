@@ -24,9 +24,112 @@ VERSION = "0.7.0"
 class GraphiteSendException(Exception):
     pass
 
+class GraphiteFormatter(object):
+    '''Format a metric, value, and timestamp for use on the carbon text socket.'''
+    def __call__(self, metric_name, metric_value, timestamp = None):
+        if timestamp is None:
+            timestamp = int(time.time())
+        message = "%s%s%s %f %d\n" % (metric_name, metric_value, timestamp)
+        return message
+
+class GraphiteStructuredFormatter(object):
+    '''Provides structured metric naming based on a prefix, system name, group, etc
+
+    :param prefix: string added to the start of all metrics
+    :type prefix: Default: "systems."
+    :param group: string added to after system_name and before metric name
+    :param system_name: FDQN of the system generating the metrics
+    :type system_name: Default: current FDQN
+    :param suffix: string added to the end of all metrics
+    :param lowercase_metric_names: Toggle the .lower() of all metric names
+    :param fqdn_squash: Change host.example.com to host_example_com
+    :type fqdn_squash: True or False
+    :param clean_metric_name: Does GraphiteClient needs to clean metric's name
+    :type clean_metric_name: True or False
+    '''
+    def __init__(self, prefix=None, group=None, system_name=None, suffix=None,
+        lowercase_metric_names=False, fqdn_squash=False, clean_metric_name=True):
+        
+        # clean up the metric pathing
+        if prefix is None:
+            tmp_prefix = 'systems.'
+        elif prefix == '':
+            tmp_prefix = ''
+        else:
+            tmp_prefix = "%s." % prefix
+
+        if system_name is None:
+            if fqdn_squash:
+                tmp_sname = '%s.' % os.uname()[1].replace('.', '_')
+            else:
+                tmp_sname = '%s.' % os.uname()[1]
+        elif system_name == '':
+            tmp_sname = ''
+        else:
+            tmp_sname = '%s.' % system_name
+
+        if group is None:
+            tmp_group = ''
+        else:
+            tmp_group = '%s.' % group
+
+        prefix = "%s%s%s" % (tmp_prefix, tmp_sname, tmp_group)
+
+        # remove double dots
+        if '..' in prefix:
+            prefix = prefix.replace('..', '.')
+
+        # Replace ' 'spaces with _
+        if ' ' in prefix:
+            prefix = prefix.replace(' ', '_')
+
+        if suffix:
+            self.suffix = suffix
+        else:
+            self.suffix = ""
+
+        self.prefix = prefix
+        self.lowercase_metric_names = lowercase_metric_names
+        self._clean_metric_name = clean_metric_name
+
+    def clean_metric_name(self, metric_name):
+        """
+        Make sure the metric is free of control chars, spaces, tabs, etc.
+        """
+        if not self._clean_metric_name:
+            return metric_name
+        metric_name = metric_name.replace('(', '_').replace(')', '')
+        metric_name = metric_name.replace(' ', '_').replace('-', '_')
+        metric_name = metric_name.replace('/', '_').replace('\\', '_')
+        return metric_name
+
+
+    '''Format a metric, value, and timestamp for use on the carbon text socket.'''
+    def __call__(self, metric_name, metric_value, timestamp = None):
+        if timestamp is None:
+            timestamp = int(time.time())
+        else:
+            timestamp = int(timestamp)
+
+        if type(metric_value).__name__ in ['str', 'unicode']:
+            metric_value = float(metric_value)
+
+        log.debug("metric: '%s'" % metric_name)
+        metric = self.clean_metric_name(metric_name)
+        log.debug("metric: '%s'" % metric_name)
+ 
+        message = "%s%s%s %f %d\n" % (self.prefix, metric_name, self.suffix,
+                                      metric_value, timestamp)
+
+        # An option to lowercase the entire message
+        if self.lowercase_metric_names:
+            message = message.lower()
+
+        return message
+
+    
 
 class GraphiteClient(object):
-
     """
     Graphite Client that will setup a TCP connection to graphite.
 
@@ -114,51 +217,38 @@ class GraphiteClient(object):
         self.debug = debug
         self.lastmessage = None
 
-        self.lowercase_metric_names = lowercase_metric_names
         self.asynchronous = False
         if asynchronous:
             self.asynchronous = self.enable_asynchronous()
         self._autoreconnect = autoreconnect
-        self._clean_metric_name = clean_metric_name
 
-        if prefix is None:
-            tmp_prefix = 'systems.'
-        elif prefix == '':
-            tmp_prefix = ''
-        else:
-            tmp_prefix = "%s." % prefix
+        self.formatter = GraphiteStructuredFormatter(prefix=prefix, group=group,
+            system_name=system_name, suffix=suffix,
+            lowercase_metric_names=lowercase_metric_names, fqdn_squash=fqdn_squash,
+            clean_metric_name=clean_metric_name)
 
-        if system_name is None:
-            if fqdn_squash:
-                tmp_sname = '%s.' % os.uname()[1].replace('.', '_')
-            else:
-                tmp_sname = '%s.' % os.uname()[1]
-        elif system_name == '':
-            tmp_sname = ''
-        else:
-            tmp_sname = '%s.' % system_name
 
-        if group is None:
-            tmp_group = ''
-        else:
-            tmp_group = '%s.' % group
+    @property
+    def prefix(self):
+        '''Backward compat - access to the properties on the default formatter
+        deprecated - use the formatter directly for this type of muckery.
+        '''
+        return self.formatter.prefix
 
-        prefix = "%s%s%s" % (tmp_prefix, tmp_sname, tmp_group)
+    @property
+    def suffix(self):
+        '''Backward compat - access to properties on the default formatter
+        deprecated - use the formatter directly for this type of muckery.
+        '''
+        return self.formatter.suffix
 
-        # remove double dots
-        if '..' in prefix:
-            prefix = prefix.replace('..', '.')
+    @property
+    def lowercase_metric_names(self):
+        '''Backward compat - access to properties on the default formatter
+        deprecated - use the formatter directly for this type of muckery.
+        '''
+        return self.formatter.lowercase_metric_names
 
-        # Replace ' 'spaces with _
-        if ' ' in prefix:
-            prefix = prefix.replace(' ', '_')
-
-        if suffix:
-            self.suffix = suffix
-        else:
-            self.suffix = ""
-
-        self.prefix = prefix
 
     def connect(self):
         """
@@ -212,12 +302,7 @@ class GraphiteClient(object):
         """
         Make sure the metric is free of control chars, spaces, tabs, etc.
         """
-        if not self._clean_metric_name:
-            return metric_name
-        metric_name = metric_name.replace('(', '_').replace(')', '')
-        metric_name = metric_name.replace(' ', '_').replace('-', '_')
-        metric_name = metric_name.replace('/', '_').replace('\\', '_')
-        return metric_name
+        return self.formatter.clean_metric_name(metric_name)
 
     def disconnect(self):
         """
@@ -312,12 +397,9 @@ class GraphiteClient(object):
         Complete any message alteration tasks before sending to the graphite
         server.
         """
-        # An option to lowercase the entire message
-        if self.lowercase_metric_names:
-            message = message.lower()
         return message
 
-    def send(self, metric, value, timestamp=None):
+    def send(self, metric, value, timestamp=None, formatter = None):
         """
         Format a single metric/value pair, and send it to the graphite
         server.
@@ -328,6 +410,8 @@ class GraphiteClient(object):
         :type prefix: float or int
         :param timestmap: epoch time of the event
         :type prefix: float or int
+        :param formatter: option non-default formatter
+        :type prefix: callable
 
         .. code-block:: python
 
@@ -340,26 +424,13 @@ class GraphiteClient(object):
           >>> g.send(metric="metricname", value=73)
 
         """
-        if timestamp is None:
-            timestamp = int(time.time())
-        else:
-            timestamp = int(timestamp)
-
-        if type(value).__name__ in ['str', 'unicode']:
-            value = float(value)
-
-        log.debug("metric: '%s'" % metric)
-        metric = self.clean_metric_name(metric)
-        log.debug("metric: '%s'" % metric)
-
-        message = "%s%s%s %f %d\n" % (self.prefix, metric, self.suffix,
-                                      value, timestamp)
-
+        if formatter is None:
+            formatter = self.formatter
+        message = formatter(metric, value, timestamp)
         message = self. _presend(message)
-
         return self._dispatch_send(message)
 
-    def send_dict(self, data, timestamp=None):
+    def send_dict(self, data, timestamp=None, formatter=None):
         """
         Format a dict of metric/values pairs, and send them all to the
         graphite server.
@@ -368,6 +439,8 @@ class GraphiteClient(object):
         :type prefix: dict
         :param timestmap: epoch time of the event
         :type prefix: float or int
+        :param formatter: option non-default formatter
+        :type prefix: callable
 
         .. code-block:: python
 
@@ -375,6 +448,9 @@ class GraphiteClient(object):
           >>> g.send_dict({'metric1': 54, 'metric2': 43, 'metricN': 999})
 
         """
+        if formatter is None:
+            formatter = self.formatter
+
         if timestamp is None:
             timestamp = int(time.time())
         else:
@@ -383,17 +459,13 @@ class GraphiteClient(object):
         metric_list = []
 
         for metric, value in data.items():
-            if type(value).__name__ in ['str', 'unicode']:
-                value = float(value)
-            metric = self.clean_metric_name(metric)
-            tmp_message = "%s%s%s %f %d\n" % (self.prefix, metric,
-                                              self.suffix, value, timestamp)
+            tmp_message = formatter(metric, value, timestamp)
             metric_list.append(tmp_message)
 
         message = "".join(metric_list)
         return self._dispatch_send(message)
 
-    def send_list(self, data, timestamp=None):
+    def send_list(self, data, timestamp=None, formatter = None):
         """
 
         Format a list of set's of (metric, value) pairs, and send them all
@@ -403,6 +475,8 @@ class GraphiteClient(object):
         :type prefix: list
         :param timestmap: epoch time of the event
         :type prefix: float or int
+        :param formatter: option non-default formatter
+        :type prefix: callable
 
         .. code-block:: python
 
@@ -410,6 +484,9 @@ class GraphiteClient(object):
           >>> g.send_list([('metric1', 54),('metric2', 43, 1384418995)])
 
         """
+        if formatter is None:
+            formatter = self.formatter
+
         if timestamp is None:
             timestamp = int(time.time())
         else:
@@ -430,15 +507,7 @@ class GraphiteClient(object):
                 (metric, value) = metric_info
                 metric_timestamp = timestamp
 
-            if type(value).__name__ in ['str', 'unicode']:
-                log.debug("metric='%(metric)s'  value='%(value)s'" % locals())
-                value = float(value)
-
-            metric = self.clean_metric_name(metric)
-
-            tmp_message = "%s%s%s %f %d\n" % (self.prefix, metric,
-                                              self.suffix, value,
-                                              metric_timestamp)
+            tmp_message = formatter(metric, value, metric_timestamp)
             metric_list.append(tmp_message)
 
         message = "".join(metric_list)
