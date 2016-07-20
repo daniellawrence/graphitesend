@@ -25,18 +25,11 @@ class GraphiteSendException(Exception):
     pass
 
 
-class GraphiteFormatter(object):
-    '''Format a metric, value, and timestamp for use on the carbon text socket.'''
-    def __call__(self, metric_name, metric_value, timestamp=None):
-        if timestamp is None:
-            timestamp = int(time.time())
-        message = "%s%s%s %f %d\n" % (metric_name, metric_value, timestamp)
-        return message
-
-
 class GraphiteStructuredFormatter(object):
-    '''Provides structured metric naming based on a prefix, system name, group, etc
+    '''Default formatter for GraphiteClient.
 
+    Provides structured metric naming based on a prefix, system name, group, etc
+    
     :param prefix: string added to the start of all metrics
     :type prefix: Default: "systems."
     :param group: string added to after system_name and before metric name
@@ -48,6 +41,11 @@ class GraphiteStructuredFormatter(object):
     :type fqdn_squash: True or False
     :param clean_metric_name: Does GraphiteClient needs to clean metric's name
     :type clean_metric_name: True or False
+
+    Feel free to implement your own formatter as any callable that accepts
+    def __call__(metric_name, metric_value, timestamp)
+
+    and emits text appropriate to send to graphite's text socket.
     '''
     def __init__(self, prefix=None, group=None, system_name=None, suffix=None,
                  lowercase_metric_names=False, fqdn_squash=False, clean_metric_name=True):
