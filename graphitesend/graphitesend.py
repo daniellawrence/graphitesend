@@ -29,7 +29,7 @@ class GraphiteStructuredFormatter(object):
     '''Default formatter for GraphiteClient.
 
     Provides structured metric naming based on a prefix, system name, group, etc
-    
+
     :param prefix: string added to the start of all metrics
     :type prefix: Default: "systems."
     :param group: string added to after system_name and before metric name
