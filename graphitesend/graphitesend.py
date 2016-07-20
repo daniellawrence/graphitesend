@@ -447,11 +447,6 @@ class GraphiteClient(object):
         if formatter is None:
             formatter = self.formatter
 
-        if timestamp is None:
-            timestamp = int(time.time())
-        else:
-            timestamp = int(timestamp)
-
         metric_list = []
 
         for metric, value in data.items():
