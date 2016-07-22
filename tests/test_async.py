@@ -45,5 +45,5 @@ class TestAsync(unittest.TestCase):
         g = graphitesend.init(prefix='', system_name='', asynchronous=True)
         g.send('test_send', 50)
         (c, addr) = self.server.accept()
-        sent_on_socket = c.recv(69)
-        self.assertTrue(sent_on_socket.startswith('test_send 50.000000'))
+        sent_on_socket = str(c.recv(69))
+        self.assertIn('test_send 50.000000', sent_on_socket)

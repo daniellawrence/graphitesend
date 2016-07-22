@@ -46,7 +46,7 @@ class TestAll(unittest.TestCase):
 
     def test_lowercase_metric_names(self):
         g = graphitesend.init(lowercase_metric_names=True)
-        send_data = g.send('METRIC', 1)
+        send_data = str(g.send('METRIC', 1))
         self.assertEqual('metric' in send_data, True)
         self.assertEqual('METRIC' in send_data, False)
 
@@ -258,10 +258,11 @@ class TestAll(unittest.TestCase):
             ],
             timestamp='4'
         )
+        response = str(response)
         # self.assertEqual('sent 69 long message:' in response, True)
         self.assertEqual('test.foo.metric 1.000000 4' in response, True)
         self.assertEqual('test.foo.metric 2.000000 2' in response, True)
-        sent_on_socket = c.recv(69)
+        sent_on_socket = str(c.recv(69))
         self.assertEqual('test.foo.metric 1.000000 4' in sent_on_socket, True)
         self.assertEqual('test.foo.metric 2.000000 2' in sent_on_socket, True)
         # self.server.shutdown(socket.SHUT_RD)
@@ -272,7 +273,7 @@ class TestAll(unittest.TestCase):
         graphite_instance = graphitesend.init(prefix='')
         response = graphite_instance.send("metric", "1", "1")
         self.assertEqual('1.00000' in response, True)
-        print response
+        print(response)
         self.assertEqual(response.endswith('1\n'), True)
 
 
