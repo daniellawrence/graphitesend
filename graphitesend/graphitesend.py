@@ -6,7 +6,7 @@ except ImportError:
     gevent = False
 
 import logging
-import os
+import platform
 import pickle
 import socket
 import struct
@@ -60,9 +60,9 @@ class GraphiteStructuredFormatter(object):
 
         if system_name is None:
             if fqdn_squash:
-                tmp_sname = '%s.' % os.uname()[1].replace('.', '_')
+                tmp_sname = '%s.' % platform.uname()[1].replace('.', '_')
             else:
-                tmp_sname = '%s.' % os.uname()[1]
+                tmp_sname = '%s.' % platform.uname()[1]
         elif system_name == '':
             tmp_sname = ''
         else:
