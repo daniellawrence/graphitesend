@@ -155,15 +155,15 @@ class GraphiteClient(object):
             self.socket.connect(self.addr)
         except socket.timeout:
             raise GraphiteSendException(
-                "Took over %d second(s) to connect to %s" %
-                (self.timeout_in_seconds, self.addr))
+                "Took over {} second(s) to connect to {}"
+                .format(self.timeout_in_seconds, self.addr))
         except socket.gaierror:
             raise GraphiteSendException(
-                "No address associated with hostname %s:%s" % self.addr)
+                "No address associated with hostname {}:{}".format(*self.addr))
         except Exception as error:
             raise GraphiteSendException(
-                "unknown exception while connecting to %s - %s" %
-                (self.addr, error)
+                "unknown exception while connecting to {} - {}"
+                .format(self.addr, error)
             )
 
         return self.socket
@@ -265,21 +265,19 @@ class GraphiteClient(object):
     def _handle_send_error(self, error):
         if isinstance(error, socket.gaierror):
             raise GraphiteSendException(
-                "Failed to send data to %s, with error: %s" %
-                (self.addr, error))
+                "Failed to send data to {}, with error: {}"
+                .format(self.addr, error))
 
         elif isinstance(error, socket.error):
             raise GraphiteSendException(
-                "Socket closed before able to send data to %s, "
-                "with error: %s" %
-                (self.addr, error)
+                "Socket closed before able to send data to {}, "
+                "with error: {}".format(self.addr, error)
             )
 
         else:
             raise GraphiteSendException(
-                "Unknown error while trying to send data down socket to %s, "
-                "error: %s" %
-                (self.addr, error)
+                "Unknown error while trying to send data down socket to {}, "
+                "error: {}".format(self.addr, error)
             )
 
     def _send(self, message):
@@ -471,8 +469,9 @@ class GraphitePickleClient(GraphiteClient):
                 (path, metric, timestamp) = line.split()
             except ValueError:
                 raise ValueError(
-                    "message must contain - metric_name, value and timestamp '%s'"
-                    % line)
+                    "message must contain - metric_name, value and "
+                    "timestamp '{}'".format(line))
+
             try:
                 timestamp = float(timestamp)
             except ValueError:
@@ -504,23 +503,24 @@ class GraphitePickleClient(GraphiteClient):
         # Capture missing socket.
         except socket.gaierror as error:
             raise GraphiteSendException(
-                "Failed to send data to %s, with error: %s" %
-                (self.addr, error))  # noqa
+                "Failed to send data to {}, with error: {}"
+                .format(self.addr, error)
+            )  # noqa
 
         # Capture socket closure before send.
         except socket.error as error:
             raise GraphiteSendException(
-                "Socket closed before able to send data to %s, "
-                "with error: %s" %
-                (self.addr, error))  # noqa
+                "Socket closed before able to send data to {}, "
+                "with error: {}".format(self.addr, error)
+            )  # noqa
 
         except Exception as error:
             raise GraphiteSendException(
-                "Unknown error while trying to send data down socket to %s, "
-                "error: %s" %
-                (self.addr, error))  # noqa
+                "Unknown error while trying to send data down socket to {}, "
+                "error: {}".format(self.addr, error)
+            )  # noqa
 
-        return "sent %d long pickled message" % len(message)
+        return "sent {} long pickled message".format(len(message))
 
 
 def init(init_type='plaintext_tcp', *args, **kwargs):
@@ -535,8 +535,9 @@ def init(init_type='plaintext_tcp', *args, **kwargs):
 
     if init_type not in validate_init_types:
         raise GraphiteSendException(
-            "Invalid init_type '%s', must be one of: %s" %
-            (init_type, ", ".join(validate_init_types)))
+            "Invalid init_type '{}', must be one of: {}"
+            .format(init_type, ", ".join(validate_init_types))
+        )
 
     # Use TCP to send data to the plain text receiver on the graphite server.
     if init_type in ['plaintext_tcp', 'plaintext', 'plain']:

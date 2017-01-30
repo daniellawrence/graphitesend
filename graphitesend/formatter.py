@@ -85,12 +85,12 @@ class GraphiteStructuredFormatter(object):
         if type(metric_value).__name__ in ['str', 'unicode']:
             metric_value = float(metric_value)
 
-        log.debug("metric: '%s'" % metric_name)
+        log.debug("metric: '{}'".format(metric_name))
         metric_name = self.clean_metric_name(metric_name)
-        log.debug("metric: '%s'" % metric_name)
+        log.debug("metric: '{}'".format(metric_name))
 
-        message = "%s%s%s %f %d\n" % (self.prefix, metric_name, self.suffix,
-                                      metric_value, timestamp)
+        message = "{}{}{} {} {}\n".format(self.prefix, metric_name,
+                                          self.suffix, metric_value, timestamp)
 
         # An option to lowercase the entire message
         if self.lowercase_metric_names:
