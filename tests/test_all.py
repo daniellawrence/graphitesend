@@ -276,6 +276,12 @@ class TestAll(unittest.TestCase):
         print(response)
         self.assertEqual(response.endswith('1\n'), True)
 
+    def test_send_metric_as_integer(self):
+        # Make sure it can handle integer as metric name
+        graphite_instance = graphitesend.init(prefix='')
+        response = graphite_instance.send(42, "1", "1")
+        self.assertEqual('42' in response, True)
+
 
 if __name__ == '__main__':
     unittest.main()
