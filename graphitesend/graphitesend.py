@@ -19,7 +19,7 @@ default_graphite_pickle_port = 2004
 default_graphite_plaintext_port = 2003
 default_graphite_server = 'graphite'
 
-VERSION = "0.7.0"
+VERSION = "0.10.0"
 
 
 class GraphiteSendException(Exception):
