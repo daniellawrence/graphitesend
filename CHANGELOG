@@ -1,3 +1,39 @@
+0.10.0
+------
+
+* Alexandre Bonnetain: Merge pull request #75 from daniellawrence/feature/integer-metric-name
+* Alexandre Bonnetain: Handle integer metric name
+* Alexandre Bonnetain: Merge pull request #73 from daniellawrence/formatter-file
+* Alexandre Bonnetain: Move the formatter's code to its own file
+* Alexandre Bonnetain: Merge pull request #72 from daniellawrence/fix/license-2017
+* Alexandre Bonnetain: Set gevent to 1.1.0 for Python 2.6
+* Alexandre Bonnetain: Update license file for 2017
+* Alexandre Bonnetain: Simpler formatting code (#69)
+* Dmitry S. Vlasov: add exponential backoff logic for autoreconnect (#66)
+* Daniel Lawrence: minor
+* Chris Carr: os.uname not supported on windows, use platform.uname
+* Alexandre Bonnetain: Merge branch 'factor_formatter' of https://github.com/zillow/graphitesend into master
+* Daniel: lock flake8 - due to python2.6 support (#68)
+* Daniel: adding py35 test runner (#63)
+* Jonathan Ultis: change whitespace in comments to satisfy flake8
+* Jonathan Ultis: remove redundant timestamp set
+* Jonathan Ultis: remove the untested simple graphite formatter to avoid annoying coverall
+* Jonathan Ultis: fix flakes
+* Jonathan Ultis: Factor the formatter out of the GraphiteClient.
+* kubauk: Fixing issue for Python3. Dispatch method uses methods that attempt to encode a bytes object when it had already. (#60)
+* Nate Tangsurat: fix: Init can use relative imports (#54)
+* Daniel: Merge pull request #58 from daniellawrence/fix/remove_monkeypatch
+* Daniel Lawrence: getting fix/remove_monkeypatch ready
+* Alexandre Bonnetain: Merge pull request #56 from daniellawrence/fix/test_clean_metric_name
+* Alexandre Bonnetain: Add tests for the case where clean_metric_name is set to false
+* Daniel: Merge pull request #55 from e4r7hbug/fix/tox
+* Nate Tangsurat: fix: Change asynchronous dependencies for tox
+* Alexandre Bonnetain: Pythonic adjustement
+* Alexandre Bonnetain: Monkey patch during test execution because it's not in the library anymore
+* Alexandre Bonnetain: Enforce the gevent monkey patching if the user activate asynchronoucity
+* Alexandre Bonnetain: Warn the user that he should monkey patch sockets to use asynchronoucity
+* Alexandre Bonnetain: Remove monkey patching
+
 0.7.0
 -----
 	* Added python2.6 support, minor formatting change + unitest2
