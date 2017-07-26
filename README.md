@@ -18,7 +18,7 @@ Read The Docs
 
 Blog posts
 -----------
-[dansysadm.com](http://dansysadm.com/blog/sending_data_to_graphte_from_python.html)
+[dansysadm.com](http://dansysadm.com/blog/2015/12/29/graphite-send.html)
 
 Example Scripts
 ----------------
