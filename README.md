@@ -25,6 +25,29 @@ Example Scripts
 The github repo of [graphitesend-examples](https://github.com/daniellawrence/graphitesend-examples)
 has lots of examples using graphitesend to grab data from your local linux system.
 
+Installing
+----------
+
+*pip*
+
+````sh
+$ pip install graphitesend
+````
+
+*easy_install*
+````sh
+$ easy_install graphitesend
+````
+
+or
+
+*source*
+
+````sh
+$ git clone git://github.com/daniellawrence/graphitesend.git
+$ cd graphitesend
+$ python ./setup.py install
+````
 
 Usage Example
 --------------
@@ -238,24 +261,6 @@ Send more\* then 1 metric and value
 
 \* Call it 2 times ;)
 
-Installing
-----------
-
-*pip*
-
-````sh
-$ pip install graphitesend
-````
-
-or
-
-*source*
-
-````sh
-$ git clone git://github.com/daniellawrence/graphitesend.git
-$ cd graphitesend
-$ python ./setup.py install
-````
 
 
 Porcelain Overview
