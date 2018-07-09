@@ -3,5 +3,5 @@
 GraphiteSend API
 ================
 
-.. automodule:: graphitesend
+.. automodule:: graphitesend.graphitesend
   :members:
