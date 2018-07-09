@@ -45,7 +45,9 @@ class GraphiteClient(object):
     :param lowercase_metric_names: Toggle the .lower() of all metric names
     :param fqdn_squash: Change host.example.com to host_example_com
     :type fqdn_squash: True or False
-    :param dryrun: Toggle if it will really send metrics or just return them
+    :param dryrun: With dryrun enabled the data will never get sent to a remote
+                  service, it will be returned instead and you can just print it
+                  out
     :type dryrun: True or False
     :param timeout_in_seconds: Number of seconds before a connection is timed out.
     :param asynchronous: Send messages asynchronouly via gevent (You have to monkey patch sockets for it to work)
