@@ -10,6 +10,13 @@ graphitesend
 
 Easy python bindings to write to Carbon ( Re-write of carbonclient).
 
+Warning
+-------
+
+This project is no longer maintained. Lacking rights to publish new versions, a
+collaborator has forked the project and maintain it there:
+[graphitesender](https://github.com/Shir0kamii/graphitesender)
+
 
 Read The Docs
 -----------
