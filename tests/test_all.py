@@ -44,12 +44,6 @@ class TestAll(unittest.TestCase):
         g = graphitesend.init(lowercase_metric_names=True)
         self.assertEqual(g.lowercase_metric_names, True)
 
-    def test_lowercase_metric_names(self):
-        g = graphitesend.init(lowercase_metric_names=True)
-        send_data = str(g.send('METRIC', 1))
-        self.assertEqual('metric' in send_data, True)
-        self.assertEqual('METRIC' in send_data, False)
-
     def test_create_graphitesend_instance(self):
         g = graphitesend.init()
         expected_type = type(graphitesend.GraphiteClient())
@@ -188,25 +182,6 @@ class TestAll(unittest.TestCase):
         self.assertEqual('long message: test.local.metric 1' in response, True)
         self.assertEqual('1.00000' in response, True)
 
-    def test_send_list_metric_value_single_timestamp(self):
-        # Make sure it can handle custom timestamp
-        graphite_instance = graphitesend.init(prefix='test')
-        response = graphite_instance.send_list([('metric', 1)], timestamp=1)
-        # self.assertEqual('sent 23 long message: test.metric' in response,
-        # True)
-        self.assertEqual('1.00000' in response, True)
-        self.assertEqual(response.endswith('1\n'), True)
-
-    def test_send_list_metric_value_timestamp(self):
-        graphite_instance = graphitesend.init(prefix='test')
-
-        # Make sure it can handle custom timestamp
-        response = graphite_instance.send_list([('metric', 1, 1)])
-        # self.assertEqual('sent 23 long message: test.metric' in response,
-        # True)
-        self.assertEqual('1.00000' in response, True)
-        self.assertEqual(response.endswith('1\n'), True)
-
     def test_send_list_metric_value_timestamp_2(self):
         graphite_instance = graphitesend.init(prefix='test', system_name='')
         # Make sure it can handle custom timestamp
@@ -267,14 +242,6 @@ class TestAll(unittest.TestCase):
         self.assertEqual('test.foo.metric 2.000000 2' in sent_on_socket, True)
         # self.server.shutdown(socket.SHUT_RD)
         # self.server.close()
-
-    def test_send_value_as_string(self):
-        # Make sure it can handle custom timestamp
-        graphite_instance = graphitesend.init(prefix='')
-        response = graphite_instance.send("metric", "1", "1")
-        self.assertEqual('1.00000' in response, True)
-        print(response)
-        self.assertEqual(response.endswith('1\n'), True)
 
     def test_send_metric_as_integer(self):
         # Make sure it can handle integer as metric name
